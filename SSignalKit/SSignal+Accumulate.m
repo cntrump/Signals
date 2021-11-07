@@ -16,7 +16,7 @@
             [subscriber putError:error];
         } completed:^
         {
-            if (intermediateResult != nil)
+            if (intermediateResult)
                 [subscriber putNext:intermediateResult];
             [subscriber putCompletion];
         }];
@@ -42,7 +42,7 @@
             [subscriber putError:error];
         } completed:^
         {
-            if (intermediateResult != nil)
+            if (intermediateResult)
                 [subscriber putNext:intermediateResult];
             [subscriber putCompletion];
         }];

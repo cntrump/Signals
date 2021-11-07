@@ -16,14 +16,13 @@
 
 @implementation STimer
 
-- (id)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion queue:(SQueue *)queue {
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion queue:(SQueue *)queue {
     return [self initWithTimeout:timeout repeat:repeat completion:completion nativeQueue:queue._dispatch_queue];
 }
 
-- (id)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion nativeQueue:(dispatch_queue_t)nativeQueue
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion nativeQueue:(dispatch_queue_t)nativeQueue
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _timeoutDate = INT_MAX;
         
@@ -37,7 +36,7 @@
 
 - (void)dealloc
 {
-    if (_timer != nil)
+    if (_timer)
     {
         dispatch_source_cancel(_timer);
         _timer = nil;
@@ -73,7 +72,7 @@
 {
     _timeoutDate = 0;
     
-    if (_timer != nil)
+    if (_timer)
     {
         dispatch_source_cancel(_timer);
         _timer = nil;

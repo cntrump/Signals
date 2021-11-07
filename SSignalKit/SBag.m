@@ -13,8 +13,7 @@
 
 - (instancetype)init
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _items = [[NSMutableArray alloc] init];
         _itemKeys = [[NSMutableArray alloc] init];
@@ -24,8 +23,9 @@
 
 - (NSInteger)addItem:(id)item
 {
-    if (item == nil)
+    if (!item) {
         return -1;
+    }
     
     NSInteger key = _nextKey;
     [_items addObject:item];

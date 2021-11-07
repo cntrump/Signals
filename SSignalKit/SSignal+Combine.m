@@ -16,8 +16,7 @@
 
 - (instancetype)initWithLatestValues:(NSDictionary *)latestValues completedStatuses:(NSArray *)completedStatuses error:(BOOL)error
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _latestValues = latestValues;
         _completedStatuses = completedStatuses;
@@ -72,14 +71,14 @@
                 for (NSUInteger i = 0; i < count; i++)
                 {
                     id value = currentState.latestValues[@(i)];
-                    if (value == nil)
+                    if (!value)
                     {
                         latestValues = nil;
                         break;
                     }
                     latestValues[i] = value;
                 }
-                if (latestValues != nil)
+                if (latestValues)
                     [subscriber putNext:latestValues];
             }
             error:^(id error)

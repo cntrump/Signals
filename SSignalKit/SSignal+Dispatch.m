@@ -15,8 +15,7 @@
 @implementation SSignal_ThrottleContainer
 
 - (instancetype)initWithValue:(id)value committed:(BOOL)committed last:(BOOL)last {
-    self = [super init];
-    if (self != nil) {
+    if (self = [super init]) {
         _value = value;
         _committed = committed;
         _last = last;
@@ -159,7 +158,7 @@
         SAtomic *value = [[SAtomic alloc] initWithValue:nil];
         STimer *timer = [[STimer alloc] initWithTimeout:delay repeat:NO completion:^{
             [value modify:^id(SSignal_ThrottleContainer *container) {
-                if (container != nil) {
+                if (container) {
                     if (!container.committed) {
                         [subscriber putNext:container.value];
                         container = [[SSignal_ThrottleContainer alloc] initWithValue:container.value committed:YES last:container.last];
@@ -175,7 +174,7 @@
         
         return [[self deliverOn:queue] startWithNext:^(id next) {
             [value modify:^id(SSignal_ThrottleContainer *container) {
-                if (container == nil) {
+                if (!container) {
                     container = [[SSignal_ThrottleContainer alloc] initWithValue:next committed:NO last:NO];
                 }
                 return container;
@@ -190,7 +189,7 @@
             __block BOOL start = NO;
             [value modify:^id(SSignal_ThrottleContainer *container) {
                 BOOL wasCommitted = NO;
-                if (container == nil) {
+                if (!container) {
                     wasCommitted = YES;
                     container = [[SSignal_ThrottleContainer alloc] initWithValue:nil committed:YES last:YES];
                 } else {

@@ -16,8 +16,7 @@
 
 - (instancetype)initWithValue:(id)value
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         pthread_mutex_init(&_lock, NULL);
         _value = value;
@@ -26,8 +25,7 @@
 }
 
 - (instancetype)initWithValue:(id)value recursive:(BOOL)recursive {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _isRecursive = recursive;
         

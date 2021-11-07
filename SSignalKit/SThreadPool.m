@@ -30,7 +30,7 @@
         
         pthread_mutex_lock(&threadPool->_mutex);
         
-        if (queue != nil)
+        if (queue)
         {
             [threadPool->_takenQueues removeObject:queue];
             if ([queue _hasTasks])
@@ -45,7 +45,7 @@
             queue = threadPool->_queues.firstObject;
             task = [queue _popFirstTask];
             
-            if (queue != nil)
+            if (queue)
             {
                 [threadPool->_takenQueues addObject:queue];
                 [threadPool->_queues removeObjectAtIndex:0];
@@ -69,8 +69,7 @@
 
 - (instancetype)initWithThreadCount:(NSUInteger)threadCount threadPriority:(double)threadPriority
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         pthread_mutex_init(&_mutex, 0);
         pthread_cond_init(&_cond, 0);

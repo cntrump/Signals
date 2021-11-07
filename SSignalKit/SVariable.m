@@ -22,8 +22,7 @@
 
 - (instancetype)init
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _subscribers = [[SBag alloc] init];
         _disposable = [[SMetaDisposable alloc] init];
@@ -73,7 +72,7 @@
     [_disposable setDisposable:[signal startWithNext:^(id next)
     {
         __strong SVariable *strongSelf = weakSelf;
-        if (strongSelf != nil)
+        if (strongSelf)
         {
             NSArray *subscribers = nil;
             OSSpinLockLock(&strongSelf->_lock);

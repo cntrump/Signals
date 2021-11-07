@@ -14,8 +14,7 @@
 
 - (instancetype)initWithSubscriber:(SSubscriber *)subscriber disposable:(id<SDisposable>)disposable
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _subscriber = subscriber;
         _disposable = disposable;
@@ -41,8 +40,7 @@
 
 - (instancetype)initWithGenerator:(id<SDisposable> (^)(SSubscriber *))generator
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _generator = [generator copy];
     }

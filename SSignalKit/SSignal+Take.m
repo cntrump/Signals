@@ -11,8 +11,7 @@
 @implementation SSignal_ValueContainer
 
 - (instancetype)initWithValue:(id)value {
-    self = [super init];
-    if (self != nil) {
+    if (self = [super init]) {
         _value = value;
     }
     return self;
@@ -71,7 +70,7 @@
             SSignal_ValueContainer *value = [last with:^id(id value) {
                 return value;
             }];
-            if (value != nil)
+            if (value)
             {
                 [subscriber putNext:value.value];
             }

@@ -22,8 +22,7 @@
 
 - (instancetype)init
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _multicastSignals = [[NSMutableDictionary alloc] init];
         _standaloneSignalDisposables = [[NSMutableDictionary alloc] init];
@@ -47,28 +46,29 @@
 
 - (SSignal *)multicastedSignalForKey:(NSString *)key producer:(SSignal *(^)(void))producer
 {
-    if (key == nil)
+    if (!key)
     {
-        if (producer)
+        if (producer) {
             return producer();
-        else
+        } else {
             return nil;
+        }
     }
     
     SSignal *signal = nil;
     OSSpinLockLock(&_lock);
     signal = _multicastSignals[key];
-    if (signal == nil)
+    if (!signal)
     {
         __weak SMulticastSignalManager *weakSelf = self;
         if (producer)
             signal = producer();
-        if (signal != nil)
+        if (signal)
         {
             signal = [[signal onDispose:^
             {
                 __strong SMulticastSignalManager *strongSelf = weakSelf;
-                if (strongSelf != nil)
+                if (strongSelf)
                 {
                     OSSpinLockLock(&strongSelf->_lock);
                     [strongSelf->_multicastSignals removeObjectForKey:key];
@@ -85,12 +85,13 @@
 
 - (void)startStandaloneSignalIfNotRunningForKey:(NSString *)key producer:(SSignal *(^)(void))producer
 {
-    if (key == nil)
+    if (!key) {
         return;
+    }
     
     BOOL produce = NO;
     OSSpinLockLock(&_lock);
-    if (_standaloneSignalDisposables[key] == nil)
+    if (!_standaloneSignalDisposables[key])
     {
         _standaloneSignalDisposables[key] = [[SMetaDisposable alloc] init];
         produce = YES;
@@ -103,7 +104,7 @@
         id<SDisposable> disposable = [producer() startWithNext:nil error:^(__unused id error)
         {
             __strong SMulticastSignalManager *strongSelf = weakSelf;
-            if (strongSelf != nil)
+            if (strongSelf)
             {
                 OSSpinLockLock(&strongSelf->_lock);
                 [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
@@ -112,7 +113,7 @@
         } completed:^
         {
             __strong SMulticastSignalManager *strongSelf = weakSelf;
-            if (strongSelf != nil)
+            if (strongSelf)
             {
                 OSSpinLockLock(&strongSelf->_lock);
                 [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
@@ -132,7 +133,7 @@
     {
         OSSpinLockLock(&self->_lock);
         SBag *bag = self->_pipeListeners[key];
-        if (bag == nil)
+        if (!bag)
         {
             bag = [[SBag alloc] init];
             self->_pipeListeners[key] = bag;

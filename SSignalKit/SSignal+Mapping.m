@@ -60,7 +60,7 @@
                     state.hasValue = YES;
                     state.value = next;
                     return @YES;
-                } else if ((state.value == nil && next == nil) || [(id<NSObject>)state.value isEqual:next]) {
+                } else if ((!state.value && !next) || [(id<NSObject>)state.value isEqual:next]) {
                     return @NO;
                 }
                 state.value = next;

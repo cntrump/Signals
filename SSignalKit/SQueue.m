@@ -64,8 +64,7 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 
 - (instancetype)initWithNativeQueue:(dispatch_queue_t)queue queueSpecific:(void *)queueSpecific
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _queue = queue;
         _queueSpecific = queueSpecific;

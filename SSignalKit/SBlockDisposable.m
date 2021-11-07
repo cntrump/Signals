@@ -14,8 +14,7 @@
 
 - (instancetype)initWithBlock:(void (^)(void))block
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _block = (__bridge_retained void *)[block copy];
     }
@@ -29,7 +28,7 @@
     {
         if (OSAtomicCompareAndSwapPtr(block, 0, &_block))
         {
-            if (block != nil)
+            if (block)
             {
                 __strong id strongBlock = (__bridge_transfer id)block;
                 strongBlock = nil;
@@ -45,7 +44,7 @@
     {
         if (OSAtomicCompareAndSwapPtr(block, 0, &_block))
         {
-            if (block != nil)
+            if (block)
             {
                 __strong id strongBlock = (__bridge_transfer id)block;
                 ((dispatch_block_t)strongBlock)();

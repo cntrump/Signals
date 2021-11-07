@@ -14,8 +14,7 @@
 @implementation SSubscriberBlocks
 
 - (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed {
-    self = [super init];
-    if (self != nil) {
+    if (self = [super init]) {
         _next = [next copy];
         _error = [error copy];
         _completed = [completed copy];
@@ -40,8 +39,7 @@
 
 - (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _blocks = [[SSubscriberBlocks alloc] initWithNext:next error:error completed:completed];
     }
@@ -161,8 +159,7 @@
 
 - (instancetype)initWithName:(NSString *)name next:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed
 {
-    self = [super initWithNext:next error:error completed:completed];
-    if (self != nil)
+    if (self = [super initWithNext:next error:error completed:completed])
     {
         _name = name;
     }

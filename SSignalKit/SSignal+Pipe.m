@@ -15,8 +15,7 @@
 
 - (instancetype)initWithReceivedValue:(BOOL)receivedValue recentValue:(id)recentValue
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _hasReceivedValue = receivedValue;
         _recentValue = recentValue;
@@ -35,8 +34,7 @@
 
 - (instancetype)initWithReplay:(BOOL)replay
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         SAtomic *subscribers = [[SAtomic alloc] initWithValue:[[SBag alloc] init]];
         SAtomic *replayState = replay ? [[SAtomic alloc] initWithValue:[[SPipeReplayState alloc] initWithReceivedValue:NO recentValue:nil]] : nil;

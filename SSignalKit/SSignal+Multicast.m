@@ -24,8 +24,7 @@ typedef enum {
 
 - (instancetype)init
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _subscribers = [[SBag alloc] init];
     }

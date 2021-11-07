@@ -18,8 +18,9 @@
 
 - (void)add:(id<SDisposable>)disposable
 {
-    if (disposable == nil)
+    if (!disposable) {
         return;
+    }
     
     BOOL dispose = NO;
     
@@ -27,13 +28,13 @@
     dispose = _disposed;
     if (!dispose)
     {
-        if (_multipleDisposables != nil)
+        if (_multipleDisposables)
         {
             NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
             [multipleDisposables addObject:disposable];
             _multipleDisposables = multipleDisposables;
         }
-        else if (_singleDisposable != nil)
+        else if (_singleDisposable)
         {
             NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithObjects:_singleDisposable, disposable, nil];
             _multipleDisposables = multipleDisposables;
@@ -52,7 +53,7 @@
 
 - (void)remove:(id<SDisposable>)disposable {
     OSSpinLockLock(&_lock);
-    if (_multipleDisposables != nil)
+    if (_multipleDisposables)
     {
         NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
         [multipleDisposables removeObject:disposable];
@@ -81,9 +82,9 @@
     }
     OSSpinLockUnlock(&_lock);
     
-    if (singleDisposable != nil)
+    if (singleDisposable)
         [singleDisposable dispose];
-    if (multipleDisposables != nil)
+    if (multipleDisposables)
     {
         for (id<SDisposable> disposable in multipleDisposables)
         {

@@ -14,8 +14,7 @@
 
 - (instancetype)initWithThreadPool:(SThreadPool *)threadPool
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _threadPool = threadPool;
         _tasks = [[NSMutableArray alloc] init];

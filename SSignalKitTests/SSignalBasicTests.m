@@ -19,8 +19,7 @@
 @implementation DisposableHolder
 
 - (instancetype)init {
-    self = [super init];
-    if (self != nil) {
+    if (self = [super init]) {
         _disposable = [[[SSignal single:nil] delay:1.0 onQueue:[SQueue concurrentDefaultQueue]] startWithNext:^(__unused id next){
             [self description];
         }];

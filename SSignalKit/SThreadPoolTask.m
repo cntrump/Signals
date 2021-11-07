@@ -24,8 +24,7 @@
 
 - (instancetype)initWithBlock:(void (^)(BOOL (^)(void)))block
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _block = [block copy];
         _state = [[SThreadPoolTaskState alloc] init];

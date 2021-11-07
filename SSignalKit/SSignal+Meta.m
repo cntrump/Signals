@@ -29,8 +29,7 @@
 
 - (instancetype)initWithSubscriber:(SSubscriber *)subscriber queueMode:(BOOL)queueMode throttleMode:(BOOL)throttleMode
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _subscriber = subscriber;
         _currentDisposable = [[SMetaDisposable alloc] init];
@@ -75,7 +74,7 @@
         } completed:^
         {
             __strong SSignalQueueState *strongSelf = weakSelf;
-            if (strongSelf != nil) {
+            if (strongSelf) {
                 [strongSelf headCompleted];
             }
         }];
@@ -109,7 +108,7 @@
     
     if (terminated)
         [_subscriber putCompletion];
-    else if (nextSignal != nil)
+    else if (nextSignal)
     {
         __weak SSignalQueueState *weakSelf = self;
         id<SDisposable> disposable = [nextSignal startWithNext:^(id next)
@@ -121,7 +120,7 @@
         } completed:^
         {
             __strong SSignalQueueState *strongSelf = weakSelf;
-            if (strongSelf != nil) {
+            if (strongSelf) {
                 [strongSelf headCompleted];
             }
         }];
@@ -288,8 +287,7 @@
 @implementation SSignalQueue
 
 - (instancetype)init {
-    self = [super init];
-    if (self != nil) {
+    if (self = [super init]) {
         _pipe = [[SPipe alloc] init];
         _disposable = [[_pipe.signalProducer() queue] startWithNext:nil];
     }

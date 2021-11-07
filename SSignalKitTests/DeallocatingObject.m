@@ -11,8 +11,7 @@
 
 - (instancetype)initWithDeallocated:(BOOL *)deallocated
 {
-    self = [super init];
-    if (self != nil)
+    if (self = [super init])
     {
         _deallocated = deallocated;
     }

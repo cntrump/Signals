@@ -27,7 +27,7 @@
     }
     OSSpinLockUnlock(&_lock);
     
-    if (previousDisposable != nil)
+    if (previousDisposable)
         [previousDisposable dispose];
     
     if (dispose)
@@ -46,7 +46,7 @@
     }
     OSSpinLockUnlock(&_lock);
     
-    if (disposable != nil)
+    if (disposable)
         [disposable dispose];
 }
 
