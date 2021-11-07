@@ -167,7 +167,7 @@
                 }];
             }] map:^id(id value) {
                 [object description];
-                return @([value intValue] * 2);
+                return @([value integerValue] * 2);
             }];
 
             id<SDisposable> disposable = [signal
@@ -225,7 +225,7 @@
     __block BOOL disposedFirst = NO;
     __block BOOL generatedSecond = NO;
     __block BOOL disposedSecond = NO;
-    __block int result = 0;
+    __block NSInteger result = 0;
 
     SSignal *signal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         generatedFirst = YES;
@@ -246,7 +246,7 @@
                      }]];
 
     [signal startWithNext:^(id next) {
-        result += [next intValue];
+        result += [next integerValue];
     }];
 
     XCTAssertTrue(generatedFirst);
@@ -257,7 +257,7 @@
 }
 
 - (void)testSwitchToLatest {
-    __block int result = 0;
+    __block NSInteger result = 0;
     __block BOOL disposedOne = NO;
     __block BOOL disposedTwo = NO;
     __block BOOL disposedThree = NO;
@@ -303,7 +303,7 @@
         SSignal *signal = [[[[SSignal single:one] then:[SSignal single:two]] then:[SSignal single:three]] switchToLatest];
         [signal
             startWithNext:^(id next) {
-                result += [next intValue];
+                result += [next integerValue];
             }
             error:nil
             completed:^{
@@ -370,7 +370,7 @@
     __block BOOL disposedFirst = NO;
     __block BOOL disposedSecond = NO;
     __block BOOL disposedThird = NO;
-    __block int result = 0;
+    __block NSInteger result = 0;
 
     SSignal *firstSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         dispatch_async(queue, ^{
@@ -410,7 +410,7 @@
 
     SSignal *signal = [[[[SSignal single:firstSignal] then:[SSignal single:secondSignal]] then:[SSignal single:thirdSignal]] queue];
     [signal startWithNext:^(id next) {
-        result += [next intValue];
+        result += [next integerValue];
     }];
 
     usleep(1000);
@@ -428,7 +428,7 @@
     __block BOOL disposedSecond = NO;
     __block BOOL disposedThird = NO;
     __block BOOL startedThird = NO;
-    __block int result = 0;
+    __block NSInteger result = 0;
 
     SSignal *firstSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         dispatch_async(queue, ^{
@@ -470,7 +470,7 @@
 
     SSignal *signal = [[[[SSignal single:firstSignal] then:[SSignal single:secondSignal]] then:[SSignal single:thirdSignal]] queue];
     [signal startWithNext:^(id next) {
-        result += [next intValue];
+        result += [next integerValue];
     }];
 
     usleep(1000);
@@ -491,7 +491,7 @@
     __block BOOL startedFirst = NO;
     __block BOOL startedSecond = NO;
     __block BOOL startedThird = NO;
-    __block int result = 0;
+    __block NSInteger result = 0;
 
     SSignal *firstSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         startedFirst = YES;
@@ -545,7 +545,7 @@
 
     SSignal *signal = [[[[SSignal single:firstSignal] then:[SSignal single:secondSignal]] then:[SSignal single:thirdSignal]] queue];
     [[signal startWithNext:^(id next) {
-        result += [next intValue];
+        result += [next integerValue];
     }] dispose];
 
     usleep(1000);
@@ -571,11 +571,11 @@
         }];
     }];
 
-    __block int result = 0;
+    __block NSInteger result = 0;
 
     [[[signal restart] take:3]
         startWithNext:^(id next) {
-            result += [next intValue];
+            result += [next integerValue];
         }
         error:^(id error) {
 
@@ -592,14 +592,14 @@
 - (void)testPipe {
     SPipe *pipe = [[SPipe alloc] init];
 
-    __block int result1 = 0;
+    __block NSInteger result1 = 0;
     id<SDisposable> disposable1 = [pipe.signalProducer() startWithNext:^(id next) {
-        result1 += [next intValue];
+        result1 += [next integerValue];
     }];
 
-    __block int result2 = 0;
+    __block NSInteger result2 = 0;
     id<SDisposable> disposable2 = [pipe.signalProducer() startWithNext:^(id next) {
-        result2 += [next intValue];
+        result2 += [next integerValue];
     }];
 
     pipe.sink(@1);
@@ -659,9 +659,9 @@
         return [error boolValue];
     }];
 
-    __block int value = 0;
+    __block NSInteger value = 0;
     [s startWithNext:^(id next) {
-        value = [next intValue];
+        value = [next integerValue];
     }];
 
     XCTAssertEqual(value, 2);
