@@ -19,5 +19,3 @@ FOUNDATION_EXPORT double SwiftSignalKitVersionNumber;
 FOUNDATION_EXPORT const unsigned char SwiftSignalKitVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <SwiftSignalKit/PublicHeader.h>
-
-

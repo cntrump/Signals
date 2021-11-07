@@ -9,7 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithThreadPool:(SThreadPool *)threadPool;
 - (void)addTask:(SThreadPoolTask *)task;
-- (SThreadPoolTask * _Nullable)_popFirstTask;
+- (SThreadPoolTask *_Nullable)_popFirstTask;
 - (BOOL)_hasTasks;
 
 @end

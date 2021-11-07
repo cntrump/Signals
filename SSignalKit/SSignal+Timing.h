@@ -1,5 +1,5 @@
-#import <SSignalKit/SSignal.h>
 #import <SSignalKit/SQueue.h>
+#import <SSignalKit/SSignal.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

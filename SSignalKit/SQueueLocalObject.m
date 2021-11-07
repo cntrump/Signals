@@ -12,7 +12,7 @@
     SQueue *_queue;
     id valueRef;
 }
--(instancetype)initWithQueue:(SQueue *)queue generate:(id  (^)(void))next {
+- (instancetype)initWithQueue:(SQueue *)queue generate:(id (^)(void))next {
     if (self = [super init]) {
         self->_queue = queue;
         [queue dispatch:^{
@@ -22,13 +22,13 @@
     return self;
 }
 
--(void)with:(void (^)(id object))f {
+- (void)with:(void (^)(id object))f {
     [self->_queue dispatch:^{
         f(self->valueRef);
     }];
 }
 
--(void)dealloc {
+- (void)dealloc {
     __block id value = self->valueRef;
     self->valueRef = nil;
     [_queue dispatch:^{
@@ -37,4 +37,3 @@
 }
 
 @end
-

@@ -2,8 +2,7 @@
 
 #import <pthread.h>
 
-@interface SAtomic ()
-{
+@interface SAtomic () {
     pthread_mutex_t _lock;
     pthread_mutexattr_t _attr;
     BOOL _isRecursive;
@@ -14,10 +13,8 @@
 
 @implementation SAtomic
 
-- (instancetype)initWithValue:(id)value
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithValue:(id)value {
+    if (self = [super init]) {
         pthread_mutex_init(&_lock, NULL);
         _value = value;
     }
@@ -25,10 +22,9 @@
 }
 
 - (instancetype)initWithValue:(id)value recursive:(BOOL)recursive {
-    if (self = [super init])
-    {
+    if (self = [super init]) {
         _isRecursive = recursive;
-        
+
         if (recursive) {
             pthread_mutexattr_init(&_attr);
             pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_RECURSIVE);
@@ -36,7 +32,7 @@
         } else {
             pthread_mutex_init(&_lock, NULL);
         }
-        
+
         _value = value;
     }
     return self;
@@ -49,8 +45,7 @@
     pthread_mutex_destroy(&_lock);
 }
 
-- (id)swap:(id)newValue
-{
+- (id)swap:(id)newValue {
     id previousValue = nil;
     pthread_mutex_lock(&_lock);
     previousValue = _value;
@@ -59,18 +54,16 @@
     return previousValue;
 }
 
-- (id)value
-{
+- (id)value {
     id previousValue = nil;
     pthread_mutex_lock(&_lock);
     previousValue = _value;
     pthread_mutex_unlock(&_lock);
-    
+
     return previousValue;
 }
 
-- (id)modify:(id (^)(id))f
-{
+- (id)modify:(id (^)(id))f {
     id newValue = nil;
     pthread_mutex_lock(&_lock);
     newValue = f(_value);
@@ -79,8 +72,7 @@
     return newValue;
 }
 
-- (id)with:(id (^)(id))f
-{
+- (id)with:(id (^)(id))f {
     id result = nil;
     pthread_mutex_lock(&_lock);
     result = f(_value);

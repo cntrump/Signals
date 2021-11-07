@@ -2,10 +2,10 @@
 
 #import "SAtomic.h"
 
-@interface SSignalIgnoreRepeatedState: NSObject
+@interface SSignalIgnoreRepeatedState : NSObject
 
-@property (nonatomic, strong) id value;
-@property (nonatomic) BOOL hasValue;
+@property(nonatomic, strong) id value;
+@property(nonatomic) BOOL hasValue;
 
 @end
 
@@ -15,68 +15,65 @@
 
 @implementation SSignal (Mapping)
 
-- (SSignal *)map:(id (^)(id))f
-{
-    return [[SSignal alloc] initWithGenerator:^id<SDisposable> (SSubscriber *subscriber)
-    {
-        return [self startWithNext:^(id next)
-        {
-            [subscriber putNext:f(next)];
-        } error:^(id error)
-        {
-            [subscriber putError:error];
-        } completed:^
-        {
-            [subscriber putCompletion];
-        }];
+- (SSignal *)map:(id (^)(id))f {
+    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
+        return [self
+            startWithNext:^(id next) {
+                [subscriber putNext:f(next)];
+            }
+            error:^(id error) {
+                [subscriber putError:error];
+            }
+            completed:^{
+                [subscriber putCompletion];
+            }];
     }];
 }
 
-- (SSignal *)filter:(BOOL (^)(id))f
-{
-    return [[SSignal alloc] initWithGenerator:^id<SDisposable> (SSubscriber *subscriber)
-    {
-        return [self startWithNext:^(id next)
-        {
-            if (f(next))
-                [subscriber putNext:next];
-        } error:^(id error)
-        {
-            [subscriber putError:error];
-        } completed:^
-        {
-            [subscriber putCompletion];
-        }];
+- (SSignal *)filter:(BOOL (^)(id))f {
+    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
+        return [self
+            startWithNext:^(id next) {
+                if (f(next))
+                    [subscriber putNext:next];
+            }
+            error:^(id error) {
+                [subscriber putError:error];
+            }
+            completed:^{
+                [subscriber putCompletion];
+            }];
     }];
 }
 
 - (SSignal *)ignoreRepeated {
     return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         SAtomic *state = [[SAtomic alloc] initWithValue:[[SSignalIgnoreRepeatedState alloc] init]];
-        
-        return [self startWithNext:^(id next) {
-            BOOL shouldPassthrough = [[state with:^id(SSignalIgnoreRepeatedState *state) {
-                if (!state.hasValue) {
-                    state.hasValue = YES;
+
+        return [self
+            startWithNext:^(id next) {
+                BOOL shouldPassthrough = [[state with:^id(SSignalIgnoreRepeatedState *state) {
+                    if (!state.hasValue) {
+                        state.hasValue = YES;
+                        state.value = next;
+                        return @YES;
+                    } else if ((!state.value && !next) || [(id<NSObject>)state.value isEqual:next]) {
+                        return @NO;
+                    }
                     state.value = next;
                     return @YES;
-                } else if ((!state.value && !next) || [(id<NSObject>)state.value isEqual:next]) {
-                    return @NO;
+                }] boolValue];
+
+                if (shouldPassthrough) {
+                    [subscriber putNext:next];
                 }
-                state.value = next;
-                return @YES;
-            }] boolValue];
-            
-            if (shouldPassthrough) {
-                [subscriber putNext:next];
             }
-        } error:^(id error)
-        {
-            [subscriber putError:error];
-        } completed:^
-        {
-            [subscriber putCompletion];
-        }];
+            error:^(id error) {
+                [subscriber putError:error];
+            }
+            completed:^{
+                [subscriber putCompletion];
+            }];
     }];
 }
 

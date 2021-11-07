@@ -1,7 +1,6 @@
 #import "SBag.h"
 
-@interface SBag ()
-{
+@interface SBag () {
     NSInteger _nextKey;
     NSMutableArray *_items;
     NSMutableArray *_itemKeys;
@@ -11,48 +10,39 @@
 
 @implementation SBag
 
-- (instancetype)init
-{
-    if (self = [super init])
-    {
+- (instancetype)init {
+    if (self = [super init]) {
         _items = [[NSMutableArray alloc] init];
         _itemKeys = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
-- (NSInteger)addItem:(id)item
-{
+- (NSInteger)addItem:(id)item {
     if (!item) {
         return -1;
     }
-    
+
     NSInteger key = _nextKey;
     [_items addObject:item];
     [_itemKeys addObject:@(key)];
     _nextKey++;
-    
+
     return key;
 }
 
-- (void)enumerateItems:(void (^)(id))block
-{
-    if (block)
-    {
-        for (id item in _items)
-        {
+- (void)enumerateItems:(void (^)(id))block {
+    if (block) {
+        for (id item in _items) {
             block(item);
         }
     }
 }
 
-- (void)removeItem:(NSInteger)key
-{
+- (void)removeItem:(NSInteger)key {
     NSUInteger index = 0;
-    for (NSNumber *itemKey in _itemKeys)
-    {
-        if ([itemKey integerValue] == key)
-        {
+    for (NSNumber *itemKey in _itemKeys) {
+        if ([itemKey integerValue] == key) {
             [_items removeObjectAtIndex:index];
             [_itemKeys removeObjectAtIndex:index];
             break;
@@ -61,13 +51,11 @@
     }
 }
 
-- (BOOL)isEmpty
-{
+- (BOOL)isEmpty {
     return _items.count == 0;
 }
 
-- (NSArray *)copyItems
-{
+- (NSArray *)copyItems {
     return [[NSArray alloc] initWithArray:_items];
 }
 

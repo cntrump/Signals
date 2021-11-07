@@ -1,15 +1,14 @@
 #import "SMulticastSignalManager.h"
 
+#import "SBag.h"
+#import "SBlockDisposable.h"
+#import "SMetaDisposable.h"
 #import "SSignal+Multicast.h"
 #import "SSignal+SideEffects.h"
-#import "SBag.h"
-#import "SMetaDisposable.h"
-#import "SBlockDisposable.h"
 
 #import <libkern/OSAtomic.h>
 
-@interface SMulticastSignalManager ()
-{
+@interface SMulticastSignalManager () {
     OSSpinLock _lock;
     NSMutableDictionary *_multicastSignals;
     NSMutableDictionary *_standaloneSignalDisposables;
@@ -20,10 +19,8 @@
 
 @implementation SMulticastSignalManager
 
-- (instancetype)init
-{
-    if (self = [super init])
-    {
+- (instancetype)init {
+    if (self = [super init]) {
         _multicastSignals = [[NSMutableDictionary alloc] init];
         _standaloneSignalDisposables = [[NSMutableDictionary alloc] init];
         _pipeListeners = [[NSMutableDictionary alloc] init];
@@ -31,45 +28,37 @@
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     NSArray *disposables = nil;
     OSSpinLockLock(&_lock);
     disposables = [_standaloneSignalDisposables allValues];
     OSSpinLockUnlock(&_lock);
-    
-    for (id<SDisposable> disposable in disposables)
-    {
+
+    for (id<SDisposable> disposable in disposables) {
         [disposable dispose];
     }
 }
 
-- (SSignal *)multicastedSignalForKey:(NSString *)key producer:(SSignal *(^)(void))producer
-{
-    if (!key)
-    {
+- (SSignal *)multicastedSignalForKey:(NSString *)key producer:(SSignal * (^)(void))producer {
+    if (!key) {
         if (producer) {
             return producer();
         } else {
             return nil;
         }
     }
-    
+
     SSignal *signal = nil;
     OSSpinLockLock(&_lock);
     signal = _multicastSignals[key];
-    if (!signal)
-    {
+    if (!signal) {
         __weak SMulticastSignalManager *weakSelf = self;
         if (producer)
             signal = producer();
-        if (signal)
-        {
-            signal = [[signal onDispose:^
-            {
+        if (signal) {
+            signal = [[signal onDispose:^{
                 __strong SMulticastSignalManager *strongSelf = weakSelf;
-                if (strongSelf)
-                {
+                if (strongSelf) {
                     OSSpinLockLock(&strongSelf->_lock);
                     [strongSelf->_multicastSignals removeObjectForKey:key];
                     OSSpinLockUnlock(&strongSelf->_lock);
@@ -79,73 +68,63 @@
         }
     }
     OSSpinLockUnlock(&_lock);
-    
+
     return signal;
 }
 
-- (void)startStandaloneSignalIfNotRunningForKey:(NSString *)key producer:(SSignal *(^)(void))producer
-{
+- (void)startStandaloneSignalIfNotRunningForKey:(NSString *)key producer:(SSignal * (^)(void))producer {
     if (!key) {
         return;
     }
-    
+
     BOOL produce = NO;
     OSSpinLockLock(&_lock);
-    if (!_standaloneSignalDisposables[key])
-    {
+    if (!_standaloneSignalDisposables[key]) {
         _standaloneSignalDisposables[key] = [[SMetaDisposable alloc] init];
         produce = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
-    if (produce)
-    {
+
+    if (produce) {
         __weak SMulticastSignalManager *weakSelf = self;
-        id<SDisposable> disposable = [producer() startWithNext:nil error:^(__unused id error)
-        {
-            __strong SMulticastSignalManager *strongSelf = weakSelf;
-            if (strongSelf)
-            {
-                OSSpinLockLock(&strongSelf->_lock);
-                [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
-                OSSpinLockUnlock(&strongSelf->_lock);
+        id<SDisposable> disposable = [producer() startWithNext:nil
+            error:^(__unused id error) {
+                __strong SMulticastSignalManager *strongSelf = weakSelf;
+                if (strongSelf) {
+                    OSSpinLockLock(&strongSelf->_lock);
+                    [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
+                    OSSpinLockUnlock(&strongSelf->_lock);
+                }
             }
-        } completed:^
-        {
-            __strong SMulticastSignalManager *strongSelf = weakSelf;
-            if (strongSelf)
-            {
-                OSSpinLockLock(&strongSelf->_lock);
-                [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
-                OSSpinLockUnlock(&strongSelf->_lock);
-            }
-        }];
-        
+            completed:^{
+                __strong SMulticastSignalManager *strongSelf = weakSelf;
+                if (strongSelf) {
+                    OSSpinLockLock(&strongSelf->_lock);
+                    [strongSelf->_standaloneSignalDisposables removeObjectForKey:key];
+                    OSSpinLockUnlock(&strongSelf->_lock);
+                }
+            }];
+
         OSSpinLockLock(&_lock);
         [(SMetaDisposable *)_standaloneSignalDisposables[key] setDisposable:disposable];
         OSSpinLockUnlock(&_lock);
     }
 }
 
-- (SSignal *)multicastedPipeForKey:(NSString *)key
-{
-    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
-    {
+- (SSignal *)multicastedPipeForKey:(NSString *)key {
+    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         OSSpinLockLock(&self->_lock);
         SBag *bag = self->_pipeListeners[key];
-        if (!bag)
-        {
+        if (!bag) {
             bag = [[SBag alloc] init];
             self->_pipeListeners[key] = bag;
         }
-        NSInteger index = [bag addItem:[^(id next)
-        {
-            [subscriber putNext:next];
-        } copy]];
+        NSInteger index = [bag addItem:[^(id next) {
+                                   [subscriber putNext:next];
+                               } copy]];
         OSSpinLockUnlock(&self->_lock);
-        
-        return [[SBlockDisposable alloc] initWithBlock:^
-        {
+
+        return [[SBlockDisposable alloc] initWithBlock:^{
             OSSpinLockLock(&self->_lock);
             SBag *bag = self->_pipeListeners[key];
             [bag removeItem:index];
@@ -157,14 +136,12 @@
     }];
 }
 
-- (void)putNext:(id)next toMulticastedPipeForKey:(NSString *)key
-{
+- (void)putNext:(id)next toMulticastedPipeForKey:(NSString *)key {
     OSSpinLockLock(&_lock);
     NSArray *pipeListeners = [(SBag *)_pipeListeners[key] copyItems];
     OSSpinLockUnlock(&_lock);
-    
-    for (void (^listener)(id) in pipeListeners)
-    {
+
+    for (void (^listener)(id) in pipeListeners) {
         listener(next);
     }
 }

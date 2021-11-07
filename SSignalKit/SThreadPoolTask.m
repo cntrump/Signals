@@ -1,8 +1,7 @@
 #import "SThreadPoolTask.h"
 
-@interface SThreadPoolTaskState : NSObject
-{
-    @public
+@interface SThreadPoolTaskState : NSObject {
+   @public
     BOOL _cancelled;
 }
 
@@ -12,8 +11,7 @@
 
 @end
 
-@interface SThreadPoolTask ()
-{
+@interface SThreadPoolTask () {
     void (^_block)(BOOL (^)(void));
     SThreadPoolTaskState *_state;
 }
@@ -22,30 +20,25 @@
 
 @implementation SThreadPoolTask
 
-- (instancetype)initWithBlock:(void (^)(BOOL (^)(void)))block
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithBlock:(void (^)(BOOL (^)(void)))block {
+    if (self = [super init]) {
         _block = [block copy];
         _state = [[SThreadPoolTaskState alloc] init];
     }
     return self;
 }
 
-- (void)execute
-{
+- (void)execute {
     if (_state->_cancelled)
         return;
-    
+
     SThreadPoolTaskState *state = _state;
-    _block(^BOOL
-    {
+    _block(^BOOL {
         return state->_cancelled;
     });
 }
 
-- (void)cancel
-{
+- (void)cancel {
     _state->_cancelled = YES;
 }
 

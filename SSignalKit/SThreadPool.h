@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 
-#import <SSignalKit/SThreadPoolTask.h>
 #import <SSignalKit/SThreadPoolQueue.h>
+#import <SSignalKit/SThreadPoolTask.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -2,8 +2,7 @@
 
 #import "SQueue.h"
 
-@interface STimer ()
-{
+@interface STimer () {
     dispatch_source_t _timer;
     NSTimeInterval _timeout;
     NSTimeInterval _timeoutDate;
@@ -20,12 +19,10 @@
     return [self initWithTimeout:timeout repeat:repeat completion:completion nativeQueue:queue._dispatch_queue];
 }
 
-- (instancetype)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion nativeQueue:(dispatch_queue_t)nativeQueue
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithTimeout:(NSTimeInterval)timeout repeat:(BOOL)repeat completion:(dispatch_block_t)completion nativeQueue:(dispatch_queue_t)nativeQueue {
+    if (self = [super init]) {
         _timeoutDate = INT_MAX;
-        
+
         _timeout = timeout;
         _repeat = repeat;
         _completion = [completion copy];
@@ -34,24 +31,20 @@
     return self;
 }
 
-- (void)dealloc
-{
-    if (_timer)
-    {
+- (void)dealloc {
+    if (_timer) {
         dispatch_source_cancel(_timer);
         _timer = nil;
     }
 }
 
-- (void)start
-{
+- (void)start {
     _timeoutDate = CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970 + _timeout;
-    
+
     _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _nativeQueue);
     dispatch_source_set_timer(_timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)), _repeat ? (int64_t)(_timeout * NSEC_PER_SEC) : DISPATCH_TIME_FOREVER, 0);
-    
-    dispatch_source_set_event_handler(_timer, ^
-    {
+
+    dispatch_source_set_event_handler(_timer, ^{
         if (self->_completion)
             self->_completion();
         if (!self->_repeat)
@@ -60,20 +53,17 @@
     dispatch_resume(_timer);
 }
 
-- (void)fireAndInvalidate
-{
+- (void)fireAndInvalidate {
     if (_completion)
         _completion();
-    
+
     [self invalidate];
 }
 
-- (void)invalidate
-{
+- (void)invalidate {
     _timeoutDate = 0;
-    
-    if (_timer)
-    {
+
+    if (_timer) {
         dispatch_source_cancel(_timer);
         _timer = nil;
     }

@@ -2,8 +2,7 @@
 
 #import "SThreadPool.h"
 
-@interface SThreadPoolQueue ()
-{
+@interface SThreadPoolQueue () {
     __weak SThreadPool *_threadPool;
     NSMutableArray *_tasks;
 }
@@ -12,29 +11,24 @@
 
 @implementation SThreadPoolQueue
 
-- (instancetype)initWithThreadPool:(SThreadPool *)threadPool
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithThreadPool:(SThreadPool *)threadPool {
+    if (self = [super init]) {
         _threadPool = threadPool;
         _tasks = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
-- (void)addTask:(SThreadPoolTask *)task
-{
+- (void)addTask:(SThreadPoolTask *)task {
     SThreadPool *threadPool = _threadPool;
-    [threadPool _workOnQueue:self block:^
-    {
-        [self->_tasks addObject:task];
-    }];
+    [threadPool _workOnQueue:self
+                       block:^{
+                           [self->_tasks addObject:task];
+                       }];
 }
 
-- (SThreadPoolTask *)_popFirstTask
-{
-    if (_tasks.count != 0)
-    {
+- (SThreadPoolTask *)_popFirstTask {
+    if (_tasks.count != 0) {
         SThreadPoolTask *task = _tasks[0];
         [_tasks removeObjectAtIndex:0];
         return task;
@@ -42,8 +36,7 @@
     return nil;
 }
 
-- (BOOL)_hasTasks
-{
+- (BOOL)_hasTasks {
     return _tasks.count != 0;
 }
 

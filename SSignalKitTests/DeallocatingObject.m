@@ -1,7 +1,6 @@
 #import "DeallocatingObject.h"
 
-@interface DeallocatingObject ()
-{
+@interface DeallocatingObject () {
     BOOL *_deallocated;
 }
 
@@ -9,17 +8,14 @@
 
 @implementation DeallocatingObject
 
-- (instancetype)initWithDeallocated:(BOOL *)deallocated
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithDeallocated:(BOOL *)deallocated {
+    if (self = [super init]) {
         _deallocated = deallocated;
     }
     return self;
 }
 
-- (void)dealloc
-{
+- (void)dealloc {
     *_deallocated = YES;
 }
 

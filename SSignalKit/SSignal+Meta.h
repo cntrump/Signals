@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (SSignal *)then:(SSignal *)signal;
 - (SSignal *)queue;
 - (SSignal *)throttled;
-+ (SSignal *)defer:(SSignal *(^)(void))generator;
++ (SSignal *)defer:(SSignal * (^)(void))generator;
 
 @end
 

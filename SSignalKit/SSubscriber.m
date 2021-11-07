@@ -3,7 +3,7 @@
 #import <libkern/OSAtomic.h>
 
 @interface SSubscriberBlocks : NSObject {
-    @public
+   @public
     void (^_next)(id);
     void (^_error)(id);
     void (^_completed)(void);
@@ -24,9 +24,8 @@
 
 @end
 
-@interface SSubscriber ()
-{
-    @protected
+@interface SSubscriber () {
+   @protected
     OSSpinLock _lock;
     BOOL _terminated;
     id<SDisposable> _disposable;
@@ -37,17 +36,14 @@
 
 @implementation SSubscriber
 
-- (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed {
+    if (self = [super init]) {
         _blocks = [[SSubscriberBlocks alloc] initWithNext:next error:error completed:completed];
     }
     return self;
 }
 
-- (void)_assignDisposable:(id<SDisposable>)disposable
-{
+- (void)_assignDisposable:(id<SDisposable>)disposable {
     BOOL dispose = NO;
     OSSpinLockLock(&_lock);
     if (_terminated) {
@@ -61,95 +57,86 @@
     }
 }
 
-- (void)_markTerminatedWithoutDisposal
-{
+- (void)_markTerminatedWithoutDisposal {
     OSSpinLockLock(&_lock);
     SSubscriberBlocks *blocks = nil;
-    if (!_terminated)
-    {
+    if (!_terminated) {
         blocks = _blocks;
         _blocks = nil;
-        
+
         _terminated = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
+
     if (blocks) {
         blocks = nil;
     }
 }
 
-- (void)putNext:(id)next
-{
+- (void)putNext:(id)next {
     SSubscriberBlocks *blocks = nil;
-    
+
     OSSpinLockLock(&_lock);
     if (!_terminated) {
         blocks = _blocks;
     }
     OSSpinLockUnlock(&_lock);
-    
+
     if (blocks && blocks->_next) {
         blocks->_next(next);
     }
 }
 
-- (void)putError:(id)error
-{
+- (void)putError:(id)error {
     BOOL shouldDispose = NO;
     SSubscriberBlocks *blocks = nil;
-    
+
     OSSpinLockLock(&_lock);
-    if (!_terminated)
-    {
+    if (!_terminated) {
         blocks = _blocks;
         _blocks = nil;
-        
+
         shouldDispose = YES;
         _terminated = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
+
     if (blocks && blocks->_error) {
         blocks->_error(error);
     }
-    
+
     if (shouldDispose)
         [self->_disposable dispose];
 }
 
-- (void)putCompletion
-{
+- (void)putCompletion {
     BOOL shouldDispose = NO;
     SSubscriberBlocks *blocks = nil;
-    
+
     OSSpinLockLock(&_lock);
-    if (!_terminated)
-    {
+    if (!_terminated) {
         blocks = _blocks;
         _blocks = nil;
-        
+
         shouldDispose = YES;
         _terminated = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
+
     if (blocks && blocks->_completed)
         blocks->_completed();
-    
+
     if (shouldDispose)
         [self->_disposable dispose];
 }
 
-- (void)dispose
-{
+- (void)dispose {
     [self->_disposable dispose];
 }
 
 @end
 
-@interface STracingSubscriber ()
-{
+@interface STracingSubscriber () {
     NSString *_name;
 }
 
@@ -157,28 +144,24 @@
 
 @implementation STracingSubscriber
 
-- (instancetype)initWithName:(NSString *)name next:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed
-{
-    if (self = [super initWithNext:next error:error completed:completed])
-    {
+- (instancetype)initWithName:(NSString *)name next:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed {
+    if (self = [super initWithNext:next error:error completed:completed]) {
         _name = name;
     }
     return self;
 }
 
-/*- (void)_assignDisposable:(id<SDisposable>)disposable
-{
-    if (_terminated)
+/*- (void)_assignDisposable:(id<SDisposable>)disposable {
+    if (_terminated) {
         [disposable dispose];
-    else
+    } else {
         _disposable = disposable;
+    }
 }
 
-- (void)_markTerminatedWithoutDisposal
-{
+- (void)_markTerminatedWithoutDisposal {
     OSSpinLockLock(&_lock);
-    if (!_terminated)
-    {
+    if (!_terminated) {
         NSLog(@"trace(%@ terminated)", _name);
         _terminated = YES;
         _next = nil;
@@ -188,32 +171,29 @@
     OSSpinLockUnlock(&_lock);
 }
 
-- (void)putNext:(id)next
-{
+- (void)putNext:(id)next {
     void (^fnext)(id) = nil;
-    
+
     OSSpinLockLock(&_lock);
-    if (!_terminated)
+    if (!_terminated) {
         fnext = self->_next;
+    }
     OSSpinLockUnlock(&_lock);
-    
-    if (fnext)
-    {
+
+    if (fnext) {
         NSLog(@"trace(%@ next: %@)", _name, next);
         fnext(next);
-    }
-    else
+    } else {
         NSLog(@"trace(%@ next: %@, not accepted)", _name, next);
+    }
 }
 
-- (void)putError:(id)error
-{
+- (void)putError:(id)error {
     BOOL shouldDispose = NO;
     void (^ferror)(id) = nil;
-    
+
     OSSpinLockLock(&_lock);
-    if (!_terminated)
-    {
+    if (!_terminated) {
         ferror = self->_error;
         shouldDispose = YES;
         self->_next = nil;
@@ -222,27 +202,25 @@
         _terminated = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
-    if (ferror)
-    {
+
+    if (ferror) {
         NSLog(@"trace(%@ error: %@)", _name, error);
         ferror(error);
-    }
-    else
+    } else {
         NSLog(@"trace(%@ error: %@, not accepted)", _name, error);
-    
-    if (shouldDispose)
+    }
+
+    if (shouldDispose) {
         [self->_disposable dispose];
+    }
 }
 
-- (void)putCompletion
-{
+- (void)putCompletion {
     BOOL shouldDispose = NO;
     void (^completed)() = nil;
-    
+
     OSSpinLockLock(&_lock);
-    if (!_terminated)
-    {
+    if (!_terminated) {
         completed = self->_completed;
         shouldDispose = YES;
         self->_next = nil;
@@ -251,21 +229,20 @@
         _terminated = YES;
     }
     OSSpinLockUnlock(&_lock);
-    
-    if (completed)
-    {
+
+    if (completed) {
         NSLog(@"trace(%@ completed)", _name);
         completed();
-    }
-    else
+    } else {
         NSLog(@"trace(%@ completed, not accepted)", _name);
-    
-    if (shouldDispose)
+    }
+
+    if (shouldDispose) {
         [self->_disposable dispose];
+    }
 }
 
-- (void)dispose
-{
+- (void)dispose {
     NSLog(@"trace(%@ dispose)", _name);
     [self->_disposable dispose];
 }*/

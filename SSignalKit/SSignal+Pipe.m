@@ -1,22 +1,20 @@
 #import "SSignal+Pipe.h"
 
-#import "SBlockDisposable.h"
 #import "SAtomic.h"
 #import "SBag.h"
+#import "SBlockDisposable.h"
 
 @interface SPipeReplayState : NSObject
 
-@property (nonatomic, readonly) BOOL hasReceivedValue;
-@property (nonatomic, strong, readonly) id recentValue;
+@property(nonatomic, readonly) BOOL hasReceivedValue;
+@property(nonatomic, strong, readonly) id recentValue;
 
 @end
 
 @implementation SPipeReplayState
 
-- (instancetype)initWithReceivedValue:(BOOL)receivedValue recentValue:(id)recentValue
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithReceivedValue:(BOOL)receivedValue recentValue:(id)recentValue {
+    if (self = [super init]) {
         _hasReceivedValue = receivedValue;
         _recentValue = recentValue;
     }
@@ -27,69 +25,53 @@
 
 @implementation SPipe
 
-- (instancetype)init
-{
+- (instancetype)init {
     return [self initWithReplay:NO];
 }
 
-- (instancetype)initWithReplay:(BOOL)replay
-{
-    if (self = [super init])
-    {
+- (instancetype)initWithReplay:(BOOL)replay {
+    if (self = [super init]) {
         SAtomic *subscribers = [[SAtomic alloc] initWithValue:[[SBag alloc] init]];
         SAtomic *replayState = replay ? [[SAtomic alloc] initWithValue:[[SPipeReplayState alloc] initWithReceivedValue:NO recentValue:nil]] : nil;
-        
-        _signalProducer = [^SSignal *
-        {
-            return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
-            {
+
+        _signalProducer = [^SSignal * {
+            return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
                 __block NSUInteger index = 0;
-                [subscribers with:^id(SBag *bag)
-                {
-                    index = [bag addItem:[^(id next)
-                    {
-                        [subscriber putNext:next];
-                    } copy]];
+                [subscribers with:^id(SBag *bag) {
+                    index = [bag addItem:[^(id next) {
+                                     [subscriber putNext:next];
+                                 } copy]];
                     return nil;
                 }];
-                
-                if (replay)
-                {
-                    [replayState with:^id(SPipeReplayState *state)
-                    {
+
+                if (replay) {
+                    [replayState with:^id(SPipeReplayState *state) {
                         if (state.hasReceivedValue)
                             [subscriber putNext:state.recentValue];
                         return nil;
                     }];
                 }
-                
-                return [[SBlockDisposable alloc] initWithBlock:^
-                {
-                    [subscribers with:^id(SBag *bag)
-                    {
+
+                return [[SBlockDisposable alloc] initWithBlock:^{
+                    [subscribers with:^id(SBag *bag) {
                         [bag removeItem:index];
                         return nil;
                     }];
                 }];
             }];
         } copy];
-        
-        _sink = [^(id next)
-        {
-            NSArray *items = [subscribers with:^id(SBag *bag)
-            {
+
+        _sink = [^(id next) {
+            NSArray *items = [subscribers with:^id(SBag *bag) {
                 return [bag copyItems];
             }];
-            
-            for (void (^item)(id) in items)
-            {
+
+            for (void (^item)(id) in items) {
                 item(next);
             }
-            
-            if (replay)
-            {
-                [replayState modify:^id(__unused SPipeReplayState *state)
-                {
+
+            if (replay) {
+                [replayState modify:^id(__unused SPipeReplayState *state) {
                     return [[SPipeReplayState alloc] initWithReceivedValue:YES recentValue:next];
                 }];
             }
