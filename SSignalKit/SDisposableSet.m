@@ -69,8 +69,9 @@
     }
     OSSpinLockUnlock(&_lock);
 
-    if (singleDisposable)
+    if (singleDisposable) {
         [singleDisposable dispose];
+    }
     if (multipleDisposables) {
         for (id<SDisposable> disposable in multipleDisposables) {
             [disposable dispose];

@@ -45,17 +45,20 @@
     dispatch_source_set_timer(_timer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_timeout * NSEC_PER_SEC)), _repeat ? (int64_t)(_timeout * NSEC_PER_SEC) : DISPATCH_TIME_FOREVER, 0);
 
     dispatch_source_set_event_handler(_timer, ^{
-        if (self->_completion)
+        if (self->_completion) {
             self->_completion();
-        if (!self->_repeat)
+        }
+        if (!self->_repeat) {
             [self invalidate];
+        }
     });
     dispatch_resume(_timer);
 }
 
 - (void)fireAndInvalidate {
-    if (_completion)
+    if (_completion) {
         _completion();
+    }
 
     [self invalidate];
 }

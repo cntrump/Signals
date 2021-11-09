@@ -34,8 +34,9 @@
         }
 
         while (YES) {
-            while (threadPool->_queues.count == 0)
+            while (threadPool->_queues.count == 0) {
                 pthread_cond_wait(&threadPool->_cond, &threadPool->_mutex);
+            }
 
             queue = threadPool->_queues.firstObject;
             task = [queue _popFirstTask];
@@ -100,8 +101,9 @@
     [_managementQueue dispatch:^{
         pthread_mutex_lock(&self->_mutex);
         block();
-        if (![self->_queues containsObject:queue] && ![self->_takenQueues containsObject:queue])
+        if (![self->_queues containsObject:queue] && ![self->_takenQueues containsObject:queue]) {
             [self->_queues addObject:queue];
+        }
         pthread_cond_broadcast(&self->_cond);
         pthread_mutex_unlock(&self->_mutex);
     }];

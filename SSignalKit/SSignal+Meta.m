@@ -87,15 +87,17 @@
             nextSignal = _queuedSignals[0];
             [_queuedSignals removeObjectAtIndex:0];
             _executingSignal = YES;
-        } else
+        } else {
             terminated = _terminated;
-    } else
+        }
+    } else {
         terminated = _terminated;
+    }
     OSSpinLockUnlock(&_lock);
 
-    if (terminated)
+    if (terminated) {
         [_subscriber putCompletion];
-    else if (nextSignal) {
+    } else if (nextSignal) {
         __weak SSignalQueueState *weakSelf = self;
         id<SDisposable> disposable = [nextSignal
             startWithNext:^(id next) {

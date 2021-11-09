@@ -53,8 +53,9 @@
     signal = _multicastSignals[key];
     if (!signal) {
         __weak SMulticastSignalManager *weakSelf = self;
-        if (producer)
+        if (producer) {
             signal = producer();
+        }
         if (signal) {
             signal = [[signal onDispose:^{
                 __strong SMulticastSignalManager *strongSelf = weakSelf;

@@ -24,8 +24,9 @@
     }
     OSSpinLockUnlock(&_lock);
 
-    if (previousDisposable)
+    if (previousDisposable) {
         [previousDisposable dispose];
+    }
 
     if (dispose)
         [disposable dispose];
@@ -41,8 +42,9 @@
     }
     OSSpinLockUnlock(&_lock);
 
-    if (disposable)
+    if (disposable) {
         [disposable dispose];
+    }
 }
 
 @end

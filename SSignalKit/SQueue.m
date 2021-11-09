@@ -66,29 +66,31 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (void)dispatch:(dispatch_block_t)block {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific)
+    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
-    else if (_specialIsMainQueue && [NSThread isMainThread])
+    } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
-    else
+    } else {
         dispatch_async(_queue, block);
+    }
 }
 
 - (void)dispatchSync:(dispatch_block_t)block {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific)
+    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
-    else if (_specialIsMainQueue && [NSThread isMainThread])
+    } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
-    else
+    } else {
         dispatch_sync(_queue, block);
+    }
 }
 
 - (void)dispatch:(dispatch_block_t)block synchronous:(BOOL)synchronous {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific)
+    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
-    else if (_specialIsMainQueue && [NSThread isMainThread])
+    } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
-    else {
+    } else {
         if (synchronous) {
             dispatch_sync(_queue, block);
         } else {
@@ -98,10 +100,11 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (BOOL)isCurrentQueue {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific)
+    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         return YES;
-    else if (_specialIsMainQueue && [NSThread isMainThread])
+    } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         return YES;
+    }
     return NO;
 }
 

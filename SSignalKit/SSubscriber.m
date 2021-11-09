@@ -123,8 +123,9 @@
     }
     OSSpinLockUnlock(&_lock);
 
-    if (blocks && blocks->_completed)
+    if (blocks && blocks->_completed) {
         blocks->_completed();
+    }
 
     if (shouldDispose)
         [self->_disposable dispose];

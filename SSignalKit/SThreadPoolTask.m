@@ -29,8 +29,9 @@
 }
 
 - (void)execute {
-    if (_state->_cancelled)
+    if (_state->_cancelled) {
         return;
+    }
 
     SThreadPoolTaskState *state = _state;
     _block(^BOOL {

@@ -28,10 +28,11 @@
 @implementation SSignal (Combine)
 
 + (SSignal *)combineSignals:(NSArray *)signals {
-    if (signals.count == 0)
+    if (signals.count == 0) {
         return [SSignal single:@[]];
-    else
+    } else {
         return [self combineSignals:signals withInitialStates:nil];
+    }
 }
 
 + (SSignal *)combineSignals:(NSArray *)signals withInitialStates:(NSArray *)initialStates {
@@ -117,8 +118,9 @@
 }
 
 + (SSignal *)mergeSignals:(NSArray *)signals {
-    if (signals.count == 0)
+    if (signals.count == 0) {
         return [SSignal complete];
+    }
 
     return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         SDisposableSet *disposables = [[SDisposableSet alloc] init];
