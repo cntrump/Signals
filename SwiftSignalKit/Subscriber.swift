@@ -4,18 +4,18 @@ public final class Subscriber<T, E> {
     private var next: ((T) -> Void)!
     private var error: ((E) -> Void)!
     private var completed: (() -> Void)!
-    
+
     private var lock = pthread_mutex_t()
     private var terminated = false
     internal var disposable: Disposable!
-    
+
     public init(next: ((T) -> Void)! = nil, error: ((E) -> Void)! = nil, completed: (() -> Void)! = nil) {
         self.next = next
         self.error = error
         self.completed = completed
         pthread_mutex_init(&self.lock, nil)
     }
-    
+
     deinit {
         var freeDisposable: Disposable?
         pthread_mutex_lock(&self.lock)
@@ -29,10 +29,10 @@ public final class Subscriber<T, E> {
             })
             freeDisposable = nil
         }
-        
+
         pthread_mutex_destroy(&self.lock)
     }
-    
+
     internal func assignDisposable(_ disposable: Disposable) {
         var dispose = false
         pthread_mutex_lock(&self.lock)
@@ -42,12 +42,12 @@ public final class Subscriber<T, E> {
             self.disposable = disposable
         }
         pthread_mutex_unlock(&self.lock)
-        
+
         if dispose {
             disposable.dispose()
         }
     }
-    
+
     internal func markTerminatedWithoutDisposal() {
         pthread_mutex_lock(&self.lock)
         if !self.terminated {
@@ -58,7 +58,7 @@ public final class Subscriber<T, E> {
         }
         pthread_mutex_unlock(&self.lock)
     }
-    
+
     public func putNext(_ next: T) {
         var action: ((T) -> Void)! = nil
         pthread_mutex_lock(&self.lock)
@@ -66,48 +66,48 @@ public final class Subscriber<T, E> {
             action = self.next
         }
         pthread_mutex_unlock(&self.lock)
-        
+
         if action != nil {
             action(next)
         }
     }
-    
+
     public func putError(_ error: E) {
         var action: ((E) -> Void)! = nil
-        
+
         var disposeDisposable: Disposable?
-        
+
         pthread_mutex_lock(&self.lock)
         if !self.terminated {
             action = self.error
             self.next = nil
             self.error = nil
-            self.completed = nil;
+            self.completed = nil
             self.terminated = true
             disposeDisposable = self.disposable
             self.disposable = nil
-            
+
         }
         pthread_mutex_unlock(&self.lock)
-        
+
         if action != nil {
             action(error)
         }
-        
+
         if let disposeDisposable = disposeDisposable {
             disposeDisposable.dispose()
         }
     }
-    
+
     public func putCompletion() {
         var action: (() -> Void)! = nil
-        
-        var disposeDisposable: Disposable? = nil
-        
+
+        var disposeDisposable: Disposable?
+
         var next: ((T) -> Void)?
         var error: ((E) -> Void)?
         var completed: (() -> Void)?
-        
+
         pthread_mutex_lock(&self.lock)
         if !self.terminated {
             action = self.completed
@@ -118,12 +118,12 @@ public final class Subscriber<T, E> {
             completed = self.completed
             self.completed = nil
             self.terminated = true
-            
+
             disposeDisposable = self.disposable
             self.disposable = nil
         }
         pthread_mutex_unlock(&self.lock)
-        
+
         if let next = next {
             withExtendedLifetime(next, {})
         }
@@ -133,11 +133,11 @@ public final class Subscriber<T, E> {
         if let completed = completed {
             withExtendedLifetime(completed, {})
         }
-        
+
         if action != nil {
             action()
         }
-        
+
         if let disposeDisposable = disposeDisposable {
             disposeDisposable.dispose()
         }

@@ -4,7 +4,7 @@ public func beforeNext<T, E, R>(_ f: @escaping(T) -> R) -> (Signal<T, E>) -> Sig
     return { signal in
         return Signal<T, E> { subscriber in
             return signal.start(next: { next in
-                let _ = f(next)
+                _ = f(next)
                 subscriber.putNext(next)
             }, error: { error in
                 subscriber.putError(error)
@@ -20,7 +20,7 @@ public func afterNext<T, E, R>(_ f: @escaping(T) -> R) -> (Signal<T, E>) -> Sign
         return Signal<T, E> { subscriber in
             return signal.start(next: { next in
                 subscriber.putNext(next)
-                let _ = f(next)
+                _ = f(next)
             }, error: { error in
                 subscriber.putError(error)
             }, completed: {
@@ -87,9 +87,9 @@ public func afterDisposed<T, E, R>(_ f: @escaping() -> R) -> (Signal<T, E>) -> S
                 subscriber.putCompletion()
             }))
             disposable.add(ActionDisposable {
-                let _ = f()
+                _ = f()
             })
-            
+
             return disposable
         }
     }

@@ -11,53 +11,53 @@ class SwiftSignalKitTests: XCTestCase {
     override func setUp() {
         super.setUp()
     }
-    
+
     override func tearDown() {
         super.tearDown()
     }
-    
+
     func testActionDisposableDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             var object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
             let disposable = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+                _ = object.debugDescription
                 disposed = true
             })
             object = nil
             XCTAssertFalse(deallocated, "deallocated != false")
             disposable.dispose()
         }
-        
+
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertTrue(disposed, "disposed != true")
     }
-    
+
     func testActionDisposableNotDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             let object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
-            let _ = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+            _ = ActionDisposable(action: { [object] () -> Void in
+                _ = object.debugDescription
                 disposed = true
             })
         }
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertFalse(disposed, "disposed != false")
     }
-    
+
     func testMetaDisposableDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             let object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
             let disposable = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+                _ = object.debugDescription
                 disposed = true
             })
-            
+
             let metaDisposable = MetaDisposable()
             metaDisposable.set(disposable)
             metaDisposable.dispose()
@@ -65,7 +65,7 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertTrue(disposed, "disposed != true")
     }
-    
+
     func testMetaDisposableDisposedMultipleTimes() {
         var deallocated1 = false
         var disposed1 = false
@@ -74,16 +74,16 @@ class SwiftSignalKitTests: XCTestCase {
         if true {
             let object1: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated1)
             let actionDisposable1 = ActionDisposable(action: { [object1] () -> Void in
-                let _ = object1.debugDescription
+                _ = object1.debugDescription
                 disposed1 = true
             })
-            
+
             let object2: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated2)
             let actionDisposable2 = ActionDisposable(action: { [object2] () -> Void in
-                let _ = object2.debugDescription
+                _ = object2.debugDescription
                 disposed2 = true
             })
-            
+
             let metaDisposable = MetaDisposable()
             metaDisposable.set(actionDisposable1)
             metaDisposable.set(actionDisposable2)
@@ -94,34 +94,34 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated2, "deallocated2 != true")
         XCTAssertTrue(disposed2, "disposed2 != true")
     }
-    
+
     func testMetaDisposableNotDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             let object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
             let disposable = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+                _ = object.debugDescription
                 disposed = true
             })
-            
+
             let metaDisposable = MetaDisposable()
             metaDisposable.set(disposable)
         }
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertFalse(disposed, "disposed != false")
     }
-    
+
     func testDisposableSetSingleDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             let object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
             let disposable = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+                _ = object.debugDescription
                 disposed = true
             })
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(disposable)
             disposableSet.dispose()
@@ -129,7 +129,7 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertTrue(disposed, "disposed != true")
     }
-    
+
     func testDisposableSetMultipleDisposed() {
         var deallocated1 = false
         var disposed1 = false
@@ -138,16 +138,16 @@ class SwiftSignalKitTests: XCTestCase {
         if true {
             let object1: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated1)
             let actionDisposable1 = ActionDisposable(action: { [object1] () -> Void in
-                let _ = object1.debugDescription
+                _ = object1.debugDescription
                 disposed1 = true
             })
-            
+
             let object2: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated2)
             let actionDisposable2 = ActionDisposable(action: { [object2] () -> Void in
-                let _ = object2.debugDescription
+                _ = object2.debugDescription
                 disposed2 = true
             })
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(actionDisposable1)
             disposableSet.add(actionDisposable2)
@@ -158,24 +158,24 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated2, "deallocated2 != true")
         XCTAssertTrue(disposed2, "disposed2 != true")
     }
-    
+
     func testDisposableSetSingleNotDisposed() {
         var deallocated = false
         var disposed = false
         if true {
             let object: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated)
             let disposable = ActionDisposable(action: { [object] () -> Void in
-                let _ = object.debugDescription
+                _ = object.debugDescription
                 disposed = true
             })
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(disposable)
         }
         XCTAssertTrue(deallocated, "deallocated != true")
         XCTAssertFalse(disposed, "disposed != false")
     }
-    
+
     func testDisposableSetMultipleNotDisposed() {
         var deallocated1 = false
         var disposed1 = false
@@ -184,16 +184,16 @@ class SwiftSignalKitTests: XCTestCase {
         if true {
             let object1: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated1)
             let actionDisposable1 = ActionDisposable(action: { [object1] () -> Void in
-                let _ = object1.debugDescription
+                _ = object1.debugDescription
                 disposed1 = true
             })
-            
+
             let object2: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated2)
             let actionDisposable2 = ActionDisposable(action: { [object2] () -> Void in
-                let _ = object2.debugDescription
+                _ = object2.debugDescription
                 disposed2 = true
             })
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(actionDisposable1)
             disposableSet.add(actionDisposable2)
@@ -203,7 +203,7 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated2, "deallocated2 != true")
         XCTAssertFalse(disposed2, "disposed2 != false")
     }
-    
+
     func testMetaDisposableAlreadyDisposed() {
         var deallocated1 = false
         var disposed1 = false
@@ -212,16 +212,16 @@ class SwiftSignalKitTests: XCTestCase {
         if true {
             let object1: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated1)
             let actionDisposable1 = ActionDisposable(action: { [object1] () -> Void in
-                let _ = object1.debugDescription
+                _ = object1.debugDescription
                 disposed1 = true
             })
-            
+
             let object2: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated2)
             let actionDisposable2 = ActionDisposable(action: { [object2] () -> Void in
-                let _ = object2.debugDescription
+                _ = object2.debugDescription
                 disposed2 = true
             })
-            
+
             let metaDisposable = MetaDisposable()
             metaDisposable.set(actionDisposable1)
             metaDisposable.dispose()
@@ -232,7 +232,7 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated2, "deallocated2 != true")
         XCTAssertTrue(disposed2, "disposed2 != true")
     }
-    
+
     func testDisposableSetAlreadyDisposed() {
         var deallocated1 = false
         var disposed1 = false
@@ -241,16 +241,16 @@ class SwiftSignalKitTests: XCTestCase {
         if true {
             let object1: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated1)
             let actionDisposable1 = ActionDisposable(action: { [object1] () -> Void in
-                let _ = object1.debugDescription
+                _ = object1.debugDescription
                 disposed1 = true
             })
-            
+
             let object2: DeallocatingObject? = DeallocatingObject(deallocated: &deallocated2)
             let actionDisposable2 = ActionDisposable(action: { [object2] () -> Void in
-                let _ = object2.debugDescription
+                _ = object2.debugDescription
                 disposed2 = true
             })
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(actionDisposable1)
             disposableSet.dispose()
@@ -261,26 +261,26 @@ class SwiftSignalKitTests: XCTestCase {
         XCTAssertTrue(deallocated2, "deallocated2 != true")
         XCTAssertTrue(disposed2, "disposed2 != true")
     }
-    
+
     func testDelayed1() {
         var flag = false
         let signal = Signal<Signal<Void, NoError>, NoError> { subscriber in
             Queue.concurrentDefaultQueue().after(0.1, {
-                subscriber.putNext(Signal { susbcriber2 in
+                subscriber.putNext(Signal { _ in
                     return ActionDisposable {
                         flag = true
                     }
                 })
             })
-            
+
             return EmptyDisposable
         } |> switchToLatest
-        
+
         let disposable = signal.start()
         disposable.dispose()
-        
+
         usleep(1000000 * 20)
-        
+
         XCTAssert(flag == true)
     }
 }

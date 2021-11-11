@@ -14,13 +14,13 @@ public func delay<T, E>(_ timeout: Double, queue: Queue) -> (_ signal: Signal<T,
                         subscriber.putCompletion()
                     }))
                 }, queue: queue)
-                
+
                 disposable.set(ActionDisposable {
                     queue.async {
                         timer.invalidate()
                     }
                 })
-                
+
                 timer.start()
             }
             return disposable
@@ -34,7 +34,7 @@ public func suspendAwareDelay<T, E>(_ timeout: Double, granularity: Double = 4.0
             let disposable = MetaDisposable()
             queue.async {
                 let beginTimestamp = CFAbsoluteTimeGetCurrent()
-                
+
                 let startFinalTimer: () -> Void = {
                     let finalTimeout = beginTimestamp + timeout - CFAbsoluteTimeGetCurrent()
                     let timer = Timer(timeout: max(0.0, finalTimeout), repeat: false, completion: {
@@ -53,7 +53,7 @@ public func suspendAwareDelay<T, E>(_ timeout: Double, granularity: Double = 4.0
                     })
                     timer.start()
                 }
-                
+
                 if timeout <= granularity * 1.1 {
                     startFinalTimer()
                 } else {
@@ -65,17 +65,17 @@ public func suspendAwareDelay<T, E>(_ timeout: Double, granularity: Double = 4.0
                             startFinalTimer()
                         }
                     }, queue: queue)
-                    
+
                     invalidateImpl = {
                         queue.async {
                             timer.invalidate()
                         }
                     }
-                    
+
                     disposable.set(ActionDisposable {
                         invalidateImpl?()
                     })
-                    
+
                     timer.start()
                 }
             }
@@ -97,7 +97,7 @@ public func timeout<T, E>(_ timeout: Double, queue: Queue, alternate: Signal<T, 
                     subscriber.putCompletion()
                 }))
             }, queue: queue)
-            
+
             disposable.set(signal.start(next: { next in
                 timer.invalidate()
                 subscriber.putNext(next)
@@ -109,13 +109,13 @@ public func timeout<T, E>(_ timeout: Double, queue: Queue, alternate: Signal<T, 
                 subscriber.putCompletion()
             }))
             timer.start()
-            
+
             let disposableSet = DisposableSet()
             disposableSet.add(ActionDisposable {
                 timer.invalidate()
             })
             disposableSet.add(disposable)
-            
+
             return disposableSet
         }
     }
