@@ -1,11 +1,7 @@
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
 
 import XCTest
 import SwiftSignalKit
+import Foundation
 
 class SwiftSignalKitTests: XCTestCase {
     override func setUp() {

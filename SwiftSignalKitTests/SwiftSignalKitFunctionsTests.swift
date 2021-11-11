@@ -1,11 +1,7 @@
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
 
 import XCTest
 import SwiftSignalKit
+import Foundation
 
 func singleSignalInt(_ value: Signal<Int, Void>) -> Signal<Signal<Int, Void>, Void> {
     return Signal { subscriber in
