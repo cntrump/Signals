@@ -262,18 +262,19 @@ class SwiftSignalKitTests: XCTestCase {
         var flag = false
         let signal = Signal<Signal<Void, NoError>, NoError> { subscriber in
             Queue.concurrentDefaultQueue().after(0.1, {
-                subscriber.putNext(Signal { _ in
+                subscriber.putNext(Signal { subscriber2 in
+                    subscriber2.putCompletion()
                     return ActionDisposable {
                         flag = true
                     }
                 })
+                subscriber.putCompletion()
             })
 
             return EmptyDisposable
         } |> switchToLatest
 
-        let disposable = signal.start()
-        disposable.dispose()
+        _ = signal.start()
 
         usleep(1000000 * 20)
 
