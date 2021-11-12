@@ -66,7 +66,7 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (void)dispatch:(dispatch_block_t)block {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
+    if (_queueSpecific && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
     } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
@@ -76,7 +76,7 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (void)dispatchSync:(dispatch_block_t)block {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
+    if (_queueSpecific && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
     } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
@@ -86,7 +86,7 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (void)dispatch:(dispatch_block_t)block synchronous:(BOOL)synchronous {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
+    if (_queueSpecific && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         block();
     } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         block();
@@ -100,7 +100,7 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 }
 
 - (BOOL)isCurrentQueue {
-    if (_queueSpecific != NULL && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
+    if (_queueSpecific && dispatch_get_specific(SQueueSpecificKey) == _queueSpecific) {
         return YES;
     } else if (_specialIsMainQueue && [NSThread isMainThread]) {
         return YES;

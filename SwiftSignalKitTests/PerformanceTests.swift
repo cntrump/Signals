@@ -26,7 +26,7 @@ final class DisposableLock {
 
 final class DisposableSpinLock {
     private var action: (() -> Void)?
-    private var lock = OSSpinLock()
+    private var lock = os_unfair_lock()
 
     init(action: @escaping () -> Void) {
         self.action = action
@@ -34,10 +34,10 @@ final class DisposableSpinLock {
 
     func dispose() {
         var action: (() -> Void)?
-        OSSpinLockLock(&self.lock)
+        os_unfair_lock_lock(&self.lock)
         action = self.action
         self.action = nil
-        OSSpinLockUnlock(&self.lock)
+        os_unfair_lock_unlock(&self.lock)
         if let action = action {
             action()
         }

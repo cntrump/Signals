@@ -1,10 +1,11 @@
 #import "SBlockDisposable.h"
 
-#import <libkern/OSAtomic.h>
+#import <os/lock.h>
 #import <objc/runtime.h>
+#import <stdatomic.h>
 
 @interface SBlockDisposable () {
-    void *_block;
+    _Atomic(void *) _block;
 }
 
 @end
@@ -20,8 +21,8 @@
 
 - (void)dealloc {
     void *block = _block;
-    if (block != NULL) {
-        if (OSAtomicCompareAndSwapPtr(block, 0, &_block)) {
+    if (block) {
+        if (atomic_compare_exchange_strong(&_block, &block, NULL)) {
             if (block) {
                 __strong id strongBlock = (__bridge_transfer id)block;
                 strongBlock = nil;
@@ -32,8 +33,8 @@
 
 - (void)dispose {
     void *block = _block;
-    if (block != NULL) {
-        if (OSAtomicCompareAndSwapPtr(block, 0, &_block)) {
+    if (block) {
+        if (atomic_compare_exchange_strong(&_block, &block, NULL)) {
             if (block) {
                 __strong id strongBlock = (__bridge_transfer id)block;
                 ((dispatch_block_t)strongBlock)();

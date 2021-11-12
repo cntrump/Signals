@@ -1,6 +1,6 @@
 #import "SSubscriber.h"
 
-#import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
 @interface SSubscriberBlocks : NSObject {
    @public
@@ -26,7 +26,7 @@
 
 @interface SSubscriber () {
    @protected
-    OSSpinLock _lock;
+    os_unfair_lock _lock;
     BOOL _terminated;
     id<SDisposable> _disposable;
     SSubscriberBlocks *_blocks;
@@ -38,6 +38,7 @@
 
 - (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed {
     if (self = [super init]) {
+        _lock = OS_UNFAIR_LOCK_INIT;
         _blocks = [[SSubscriberBlocks alloc] initWithNext:next error:error completed:completed];
     }
     return self;
@@ -45,20 +46,20 @@
 
 - (void)_assignDisposable:(id<SDisposable>)disposable {
     BOOL dispose = NO;
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (_terminated) {
         dispose = YES;
     } else {
         _disposable = disposable;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
     if (dispose) {
         [disposable dispose];
     }
 }
 
 - (void)_markTerminatedWithoutDisposal {
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     SSubscriberBlocks *blocks = nil;
     if (!_terminated) {
         blocks = _blocks;
@@ -66,7 +67,7 @@
 
         _terminated = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (blocks) {
         blocks = nil;
@@ -76,11 +77,11 @@
 - (void)putNext:(id)next {
     SSubscriberBlocks *blocks = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         blocks = _blocks;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (blocks && blocks->_next) {
         blocks->_next(next);
@@ -91,7 +92,7 @@
     BOOL shouldDispose = NO;
     SSubscriberBlocks *blocks = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         blocks = _blocks;
         _blocks = nil;
@@ -99,7 +100,7 @@
         shouldDispose = YES;
         _terminated = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (blocks && blocks->_error) {
         blocks->_error(error);
@@ -113,7 +114,7 @@
     BOOL shouldDispose = NO;
     SSubscriberBlocks *blocks = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         blocks = _blocks;
         _blocks = nil;
@@ -121,7 +122,7 @@
         shouldDispose = YES;
         _terminated = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (blocks && blocks->_completed) {
         blocks->_completed();
@@ -161,7 +162,7 @@
 }
 
 - (void)_markTerminatedWithoutDisposal {
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         NSLog(@"trace(%@ terminated)", _name);
         _terminated = YES;
@@ -169,17 +170,17 @@
         _error = nil;
         _completed = nil;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 }
 
 - (void)putNext:(id)next {
     void (^fnext)(id) = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         fnext = self->_next;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (fnext) {
         NSLog(@"trace(%@ next: %@)", _name, next);
@@ -193,7 +194,7 @@
     BOOL shouldDispose = NO;
     void (^ferror)(id) = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         ferror = self->_error;
         shouldDispose = YES;
@@ -202,7 +203,7 @@
         self->_completed = nil;
         _terminated = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (ferror) {
         NSLog(@"trace(%@ error: %@)", _name, error);
@@ -220,7 +221,7 @@
     BOOL shouldDispose = NO;
     void (^completed)() = nil;
 
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (!_terminated) {
         completed = self->_completed;
         shouldDispose = YES;
@@ -229,7 +230,7 @@
         self->_completed = nil;
         _terminated = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (completed) {
         NSLog(@"trace(%@ completed)", _name);

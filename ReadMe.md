@@ -2,7 +2,7 @@
 
 An experimental Rx- and RAC-3.0-inspired FRP framework
 
-Support iOS, tvOS, macOS
+Support iOS 10.0, tvOS 10.0, macOS 10.12
 
 ## Install with [Carthage](https://github.com/Carthage/Carthage)
 

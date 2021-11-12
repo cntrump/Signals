@@ -6,10 +6,10 @@
 #import "SSignal+Mapping.h"
 #import "SSignal+Pipe.h"
 
-#import <libkern/OSAtomic.h>
+#import <os/lock.h>
 
 @interface SSignalQueueState : NSObject <SDisposable> {
-    OSSpinLock _lock;
+    os_unfair_lock _lock;
     BOOL _executingSignal;
     BOOL _terminated;
 
@@ -28,6 +28,7 @@
 
 - (instancetype)initWithSubscriber:(SSubscriber *)subscriber queueMode:(BOOL)queueMode throttleMode:(BOOL)throttleMode {
     if (self = [super init]) {
+        _lock = OS_UNFAIR_LOCK_INIT;
         _subscriber = subscriber;
         _currentDisposable = [[SMetaDisposable alloc] init];
         _queuedSignals = queueMode ? [[NSMutableArray alloc] init] : nil;
@@ -43,7 +44,7 @@
 
 - (void)enqueueSignal:(SSignal *)signal {
     BOOL startSignal = NO;
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     if (_queueMode && _executingSignal) {
         if (_throttleMode) {
             [_queuedSignals removeAllObjects];
@@ -53,7 +54,7 @@
         _executingSignal = YES;
         startSignal = YES;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (startSignal) {
         __weak SSignalQueueState *weakSelf = self;
@@ -79,7 +80,7 @@
     SSignal *nextSignal = nil;
 
     BOOL terminated = NO;
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     _executingSignal = NO;
 
     if (_queueMode) {
@@ -93,7 +94,7 @@
     } else {
         terminated = _terminated;
     }
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (terminated) {
         [_subscriber putCompletion];
@@ -119,10 +120,10 @@
 
 - (void)beginCompletion {
     BOOL executingSignal = NO;
-    OSSpinLockLock(&_lock);
+    os_unfair_lock_lock(&_lock);
     executingSignal = _executingSignal;
     _terminated = YES;
-    OSSpinLockUnlock(&_lock);
+    os_unfair_lock_unlock(&_lock);
 
     if (!executingSignal)
         [_subscriber putCompletion];

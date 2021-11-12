@@ -3,8 +3,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import <libkern/OSAtomic.h>
-
 #import <SSignalKit/SSignalKit.h>
 
 #import "DeallocatingObject.h"
