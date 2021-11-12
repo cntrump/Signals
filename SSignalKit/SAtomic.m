@@ -1,11 +1,8 @@
 #import "SAtomic.h"
-
-#import <pthread.h>
+#import "SMutexLock.h"
 
 @interface SAtomic () {
-    pthread_mutex_t _lock;
-    pthread_mutexattr_t _attr;
-    BOOL _isRecursive;
+    SMutexLock *_lock;
     id _value;
 }
 
@@ -15,68 +12,44 @@
 
 - (instancetype)initWithValue:(id)value {
     if (self = [super init]) {
-        pthread_mutex_init(&_lock, NULL);
+        _lock = [[SMutexLock alloc] init];
         _value = value;
     }
     return self;
-}
-
-- (instancetype)initWithValue:(id)value recursive:(BOOL)recursive {
-    if (self = [super init]) {
-        _isRecursive = recursive;
-
-        if (recursive) {
-            pthread_mutexattr_init(&_attr);
-            pthread_mutexattr_settype(&_attr, PTHREAD_MUTEX_RECURSIVE);
-            pthread_mutex_init(&_lock, &_attr);
-        } else {
-            pthread_mutex_init(&_lock, NULL);
-        }
-
-        _value = value;
-    }
-    return self;
-}
-
-- (void)dealloc {
-    if (_isRecursive) {
-        pthread_mutexattr_destroy(&_attr);
-    }
-    pthread_mutex_destroy(&_lock);
 }
 
 - (id)swap:(id)newValue {
-    id previousValue = nil;
-    pthread_mutex_lock(&_lock);
-    previousValue = _value;
-    _value = newValue;
-    pthread_mutex_unlock(&_lock);
+    __block id previousValue = nil;
+    [_lock locked:^{
+        previousValue = _value;
+        _value = newValue;
+    }];
     return previousValue;
 }
 
 - (id)value {
-    id previousValue = nil;
-    pthread_mutex_lock(&_lock);
-    previousValue = _value;
-    pthread_mutex_unlock(&_lock);
+    __block id previousValue = nil;
+    [_lock locked:^{
+        previousValue = _value;
+    }];
 
     return previousValue;
 }
 
 - (id)modify:(id (^)(id))f {
-    id newValue = nil;
-    pthread_mutex_lock(&_lock);
-    newValue = f(_value);
-    _value = newValue;
-    pthread_mutex_unlock(&_lock);
+    __block id newValue = nil;
+    [_lock locked:^{
+        newValue = f(_value);
+        _value = newValue;
+    }];
     return newValue;
 }
 
 - (id)with:(id (^)(id))f {
-    id result = nil;
-    pthread_mutex_lock(&_lock);
-    result = f(_value);
-    pthread_mutex_unlock(&_lock);
+    __block id result = nil;
+    [_lock locked:^{
+        result = f(_value);
+    }];
     return result;
 }
 
