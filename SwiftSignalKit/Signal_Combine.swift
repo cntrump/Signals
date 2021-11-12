@@ -173,7 +173,7 @@ public func combineLatest<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13
 }
 
 public func combineLatest<T, E>(queue: Queue? = nil, _ signals: [Signal<T, E>]) -> Signal<[T], E> {
-    if signals.count == 0 {
+    guard !signals.isEmpty else {
         return single([T](), E.self)
     }
 

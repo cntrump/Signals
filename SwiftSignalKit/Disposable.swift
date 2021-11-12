@@ -157,10 +157,8 @@ public final class DisposableSet: Disposable {
             }
         }
 
-        if disposables.count != 0 {
-            for disposable in disposables {
-                disposable.dispose()
-            }
+        disposables.forEach { disposable in
+            disposable.dispose()
         }
     }
 }
@@ -207,10 +205,8 @@ public final class DisposableDict<T: Hashable>: Disposable {
             }
         }
 
-        if disposables.count != 0 {
-            for disposable in disposables.values {
-                disposable.dispose()
-            }
+        disposables.values.forEach { disposable in
+            disposable.dispose()
         }
     }
 }

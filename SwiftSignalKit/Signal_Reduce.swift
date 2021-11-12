@@ -112,7 +112,7 @@ private final class ReduceQueueState<T, E>: Disposable {
             var currentValue: T!
             self.lock.locked {
                 self.executingSignal = false
-                if self.queuedValues.count != 0 {
+                if !self.queuedValues.isEmpty {
                     nextSignal = self.generator(self.value, self.queuedValues[0])
                     self.queuedValues.remove(at: 0)
                     self.executingSignal = true

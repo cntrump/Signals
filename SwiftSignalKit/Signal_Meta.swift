@@ -61,7 +61,7 @@ private final class SignalQueueState<T, E>: Disposable {
             lock.locked {
                 self.executingSignal = false
                 if self.queueMode {
-                    if self.queuedSignals.count != 0 {
+                    if !self.queuedSignals.isEmpty {
                         nextSignal = self.queuedSignals[0]
                         self.queuedSignals.remove(at: 0)
                         self.executingSignal = true

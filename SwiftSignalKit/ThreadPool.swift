@@ -40,17 +40,17 @@ public final class ThreadPoolQueue: Equatable {
     }
 
     fileprivate func popFirstTask() -> ThreadPoolTask? {
-        if self.tasks.count != 0 {
-            let task = self.tasks[0]
-            self.tasks.remove(at: 0)
-            return task
-        } else {
+        guard !tasks.isEmpty else {
             return nil
         }
+
+        let task = self.tasks[0]
+        self.tasks.remove(at: 0)
+        return task
     }
 
     fileprivate func hasTasks() -> Bool {
-        return self.tasks.count != 0
+        return !self.tasks.isEmpty
     }
 }
 
@@ -84,11 +84,11 @@ public func ==(lhs: ThreadPoolQueue, rhs: ThreadPoolQueue) -> Bool {
             }
 
             while true {
-                while threadPool.queues.count == 0 {
+                while threadPool.queues.isEmpty {
                     pthread_cond_wait(&threadPool.condition, &threadPool.mutex)
                 }
 
-                if threadPool.queues.count != 0 {
+                if !threadPool.queues.isEmpty {
                     queue = threadPool.queues[0]
                 }
 
