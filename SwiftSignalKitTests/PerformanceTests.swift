@@ -5,19 +5,18 @@ import Foundation
 
 final class DisposableLock {
     private var action: (() -> Void)?
-    private var lock = pthread_mutex_t()
+    private var lock = os_unfair_lock()
 
     init(action: @escaping () -> Void) {
         self.action = action
-        pthread_mutex_init(&self.lock, nil)
     }
 
     func dispose() {
         var action: (() -> Void)?
-        pthread_mutex_lock(&self.lock)
+        os_unfair_lock_lock(&self.lock)
         action = self.action
         self.action = nil
-        pthread_mutex_unlock(&self.lock)
+        os_unfair_lock_unlock(&self.lock)
         if let action = action {
             action()
         }
