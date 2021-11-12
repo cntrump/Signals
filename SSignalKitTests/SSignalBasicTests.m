@@ -207,7 +207,6 @@
             }
                     error:nil
                 completed:nil];
-        NSLog(@"dispose");
         [disposable dispose];
     }
 
@@ -370,11 +369,13 @@
     __block BOOL disposedThird = NO;
     __block NSInteger result = 0;
 
+    XCTestExpectation *first = [self expectationWithDescription:@"testQueue - first"];
     SSignal *firstSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         dispatch_async(queue, ^{
             usleep(100);
             [subscriber putNext:@1];
             [subscriber putCompletion];
+            [first fulfill];
         });
 
         return [[SBlockDisposable alloc] initWithBlock:^{
@@ -382,11 +383,13 @@
         }];
     }];
 
+    XCTestExpectation *second = [self expectationWithDescription:@"testQueue - second"];
     SSignal *secondSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         dispatch_async(queue, ^{
             usleep(100);
             [subscriber putNext:@2];
             [subscriber putCompletion];
+            [second fulfill];
         });
 
         return [[SBlockDisposable alloc] initWithBlock:^{
@@ -394,11 +397,13 @@
         }];
     }];
 
+    XCTestExpectation *third = [self expectationWithDescription:@"testQueue - third"];
     SSignal *thirdSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
         dispatch_async(queue, ^{
             usleep(100);
             [subscriber putNext:@3];
             [subscriber putCompletion];
+            [third fulfill];
         });
 
         return [[SBlockDisposable alloc] initWithBlock:^{
@@ -411,7 +416,7 @@
         result += [next integerValue];
     }];
 
-    usleep(1000);
+    [self waitForExpectations:@[ first, second, third ] timeout:0.001];
 
     XCTAssertEqual(result, 6);
     XCTAssertTrue(disposedFirst);

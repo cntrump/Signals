@@ -198,7 +198,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         var generated = false
         let queue = DispatchQueue(label: "")
 
-        if true {
+        autoreleasepool {
             let signal = Signal<Int, Void> { subscriber in
                 queue.async {
                     usleep(200)
@@ -213,12 +213,12 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
                 generated = true
             })
             disposable.dispose()
-
-            queue.sync(flags: [.barrier], execute: {})
-
-            XCTAssertTrue(disposed, "disposed != true")
-            XCTAssertFalse(generated, "generated != false")
         }
+
+        queue.sync(flags: [.barrier], execute: {})
+
+        XCTAssertTrue(disposed, "disposed != true")
+        XCTAssertFalse(generated, "generated != false")
     }
 
     func testThen() {
