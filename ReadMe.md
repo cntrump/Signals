@@ -1,4 +1,4 @@
-# Signals
+# Signals ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/cntrump/Signals/CI)
 
 An experimental Rx- and RAC-3.0-inspired FRP framework
 

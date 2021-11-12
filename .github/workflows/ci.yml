@@ -1,0 +1,61 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  SSignalKit-for-iOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' test
+  SSignalKit-for-tvOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' test
+  SSignalKit-for-macOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk macosx -arch x86_64 -arch arm64 build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SSignalKit' -configuration Debug -sdk macosx -arch x86_64 -arch arm64 test
+  SwiftSignalKit-for-iOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 11' test
+  SwiftSignalKit-for-tvOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk appletvsimulator -destination 'platform=tvOS Simulator,name=Apple TV' test
+  SwiftSignalKit-for-macOS:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk macosx -arch x86_64 -arch arm64 build
+      - name: Run tests
+        run: xcodebuild -project 'SSignalKit.xcodeproj' -scheme 'SwiftSignalKit' -configuration Debug -sdk macosx -arch x86_64 -arch arm64 test
+  Swift-Package-Manager:
+    runs-on: macOS-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: swift build
+      - name: Run tests
+        run: swift test
