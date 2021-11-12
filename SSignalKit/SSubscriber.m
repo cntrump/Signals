@@ -1,6 +1,6 @@
 #import "SSubscriber.h"
 
-#import <os/lock.h>
+#import "SMutexLock.h"
 
 @interface SSubscriberBlocks : NSObject {
    @public
@@ -26,7 +26,7 @@
 
 @interface SSubscriber () {
    @protected
-    os_unfair_lock _lock;
+    SMutexLock *_lock;
     BOOL _terminated;
     id<SDisposable> _disposable;
     SSubscriberBlocks *_blocks;
@@ -38,36 +38,36 @@
 
 - (instancetype)initWithNext:(void (^)(id))next error:(void (^)(id))error completed:(void (^)(void))completed {
     if (self = [super init]) {
-        _lock = OS_UNFAIR_LOCK_INIT;
+        _lock = [[SMutexLock alloc] init];
         _blocks = [[SSubscriberBlocks alloc] initWithNext:next error:error completed:completed];
     }
     return self;
 }
 
 - (void)_assignDisposable:(id<SDisposable>)disposable {
-    BOOL dispose = NO;
-    os_unfair_lock_lock(&_lock);
-    if (_terminated) {
-        dispose = YES;
-    } else {
-        _disposable = disposable;
-    }
-    os_unfair_lock_unlock(&_lock);
+    __block BOOL dispose = NO;
+    [_lock locked:^{
+        if (_terminated) {
+            dispose = YES;
+        } else {
+            _disposable = disposable;
+        }
+    }];
     if (dispose) {
         [disposable dispose];
     }
 }
 
 - (void)_markTerminatedWithoutDisposal {
-    os_unfair_lock_lock(&_lock);
-    SSubscriberBlocks *blocks = nil;
-    if (!_terminated) {
-        blocks = _blocks;
-        _blocks = nil;
+    __block SSubscriberBlocks *blocks = nil;
+    [_lock locked:^{
+        if (!_terminated) {
+            blocks = _blocks;
+            _blocks = nil;
 
-        _terminated = YES;
-    }
-    os_unfair_lock_unlock(&_lock);
+            _terminated = YES;
+        }
+    }];
 
     if (blocks) {
         blocks = nil;
@@ -75,13 +75,13 @@
 }
 
 - (void)putNext:(id)next {
-    SSubscriberBlocks *blocks = nil;
+    __block SSubscriberBlocks *blocks = nil;
 
-    os_unfair_lock_lock(&_lock);
-    if (!_terminated) {
-        blocks = _blocks;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        if (!_terminated) {
+            blocks = _blocks;
+        }
+    }];
 
     if (blocks && blocks->_next) {
         blocks->_next(next);
@@ -89,18 +89,18 @@
 }
 
 - (void)putError:(id)error {
-    BOOL shouldDispose = NO;
-    SSubscriberBlocks *blocks = nil;
+    __block BOOL shouldDispose = NO;
+    __block SSubscriberBlocks *blocks = nil;
 
-    os_unfair_lock_lock(&_lock);
-    if (!_terminated) {
-        blocks = _blocks;
-        _blocks = nil;
+    [_lock locked:^{
+        if (!_terminated) {
+            blocks = _blocks;
+            _blocks = nil;
 
-        shouldDispose = YES;
-        _terminated = YES;
-    }
-    os_unfair_lock_unlock(&_lock);
+            shouldDispose = YES;
+            _terminated = YES;
+        }
+    }];
 
     if (blocks && blocks->_error) {
         blocks->_error(error);
@@ -111,18 +111,18 @@
 }
 
 - (void)putCompletion {
-    BOOL shouldDispose = NO;
-    SSubscriberBlocks *blocks = nil;
+    __block BOOL shouldDispose = NO;
+    __block SSubscriberBlocks *blocks = nil;
 
-    os_unfair_lock_lock(&_lock);
-    if (!_terminated) {
-        blocks = _blocks;
-        _blocks = nil;
+    [_lock locked:^{
+        if (!_terminated) {
+            blocks = _blocks;
+            _blocks = nil;
 
-        shouldDispose = YES;
-        _terminated = YES;
-    }
-    os_unfair_lock_unlock(&_lock);
+            shouldDispose = YES;
+            _terminated = YES;
+        }
+    }];
 
     if (blocks && blocks->_completed) {
         blocks->_completed();
@@ -162,7 +162,7 @@
 }
 
 - (void)_markTerminatedWithoutDisposal {
-    os_unfair_lock_lock(&_lock);
+    [_lock guard:^{
     if (!_terminated) {
         NSLog(@"trace(%@ terminated)", _name);
         _terminated = YES;
@@ -170,17 +170,17 @@
         _error = nil;
         _completed = nil;
     }
-    os_unfair_lock_unlock(&_lock);
+    }];
 }
 
 - (void)putNext:(id)next {
     void (^fnext)(id) = nil;
 
-    os_unfair_lock_lock(&_lock);
+    [_lock guard:^{
     if (!_terminated) {
         fnext = self->_next;
     }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (fnext) {
         NSLog(@"trace(%@ next: %@)", _name, next);
@@ -194,7 +194,7 @@
     BOOL shouldDispose = NO;
     void (^ferror)(id) = nil;
 
-    os_unfair_lock_lock(&_lock);
+    [_lock guard:^{
     if (!_terminated) {
         ferror = self->_error;
         shouldDispose = YES;
@@ -203,7 +203,7 @@
         self->_completed = nil;
         _terminated = YES;
     }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (ferror) {
         NSLog(@"trace(%@ error: %@)", _name, error);
@@ -221,7 +221,7 @@
     BOOL shouldDispose = NO;
     void (^completed)() = nil;
 
-    os_unfair_lock_lock(&_lock);
+    [_lock guard:^{
     if (!_terminated) {
         completed = self->_completed;
         shouldDispose = YES;
@@ -230,7 +230,7 @@
         self->_completed = nil;
         _terminated = YES;
     }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (completed) {
         NSLog(@"trace(%@ completed)", _name);

@@ -1,8 +1,8 @@
 #import "SSignal+Multicast.h"
 
-#import <os/lock.h>
 #import "SBag.h"
 #import "SBlockDisposable.h"
+#import "SMutexLock.h"
 
 typedef enum {
     SSignalMulticastStateReady,
@@ -11,7 +11,7 @@ typedef enum {
 } SSignalMulticastState;
 
 @interface SSignalMulticastSubscribers : NSObject {
-    os_unfair_lock _lock;
+    SMutexLock *_lock;
     SBag *_subscribers;
     SSignalMulticastState _state;
     id<SDisposable> _disposable;
@@ -23,7 +23,7 @@ typedef enum {
 
 - (instancetype)init {
     if (self = [super init]) {
-        _lock = OS_UNFAIR_LOCK_INIT;
+        _lock = [[SMutexLock alloc] init];
         _subscribers = [[SBag alloc] init];
     }
     return self;
@@ -35,17 +35,18 @@ typedef enum {
 }
 
 - (id<SDisposable>)addSubscriber:(SSubscriber *)subscriber start:(BOOL *)start {
-    os_unfair_lock_lock(&_lock);
-    NSInteger index = [_subscribers addItem:subscriber];
-    switch (_state) {
-        case SSignalMulticastStateReady:
-            *start = YES;
-            _state = SSignalMulticastStateStarted;
-            break;
-        default:
-            break;
-    }
-    os_unfair_lock_unlock(&_lock);
+    __block NSInteger index;
+    [_lock locked:^{
+        index = [_subscribers addItem:subscriber];
+        switch (_state) {
+            case SSignalMulticastStateReady:
+                *start = YES;
+                _state = SSignalMulticastStateStarted;
+                break;
+            default:
+                break;
+        }
+    }];
 
     return [[SBlockDisposable alloc] initWithBlock:^{
         [self remove:index];
@@ -53,30 +54,30 @@ typedef enum {
 }
 
 - (void)remove:(NSInteger)index {
-    id<SDisposable> currentDisposable = nil;
+    __block id<SDisposable> currentDisposable = nil;
 
-    os_unfair_lock_lock(&_lock);
-    [_subscribers removeItem:index];
-    switch (_state) {
-        case SSignalMulticastStateStarted:
-            if ([_subscribers isEmpty]) {
-                currentDisposable = _disposable;
-                _disposable = nil;
-            }
-            break;
-        default:
-            break;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        [_subscribers removeItem:index];
+        switch (_state) {
+            case SSignalMulticastStateStarted:
+                if ([_subscribers isEmpty]) {
+                    currentDisposable = _disposable;
+                    _disposable = nil;
+                }
+                break;
+            default:
+                break;
+        }
+    }];
 
     [currentDisposable dispose];
 }
 
 - (void)notifyNext:(id)next {
-    NSArray *currentSubscribers = nil;
-    os_unfair_lock_lock(&_lock);
-    currentSubscribers = [_subscribers copyItems];
-    os_unfair_lock_unlock(&_lock);
+    __block NSArray *currentSubscribers = nil;
+    [_lock locked:^{
+        currentSubscribers = [_subscribers copyItems];
+    }];
 
     for (SSubscriber *subscriber in currentSubscribers) {
         [subscriber putNext:next];
@@ -84,11 +85,11 @@ typedef enum {
 }
 
 - (void)notifyError:(id)error {
-    NSArray *currentSubscribers = nil;
-    os_unfair_lock_lock(&_lock);
-    currentSubscribers = [_subscribers copyItems];
-    _state = SSignalMulticastStateCompleted;
-    os_unfair_lock_unlock(&_lock);
+    __block NSArray *currentSubscribers = nil;
+    [_lock locked:^{
+        currentSubscribers = [_subscribers copyItems];
+        _state = SSignalMulticastStateCompleted;
+    }];
 
     for (SSubscriber *subscriber in currentSubscribers) {
         [subscriber putError:error];
@@ -96,11 +97,11 @@ typedef enum {
 }
 
 - (void)notifyCompleted {
-    NSArray *currentSubscribers = nil;
-    os_unfair_lock_lock(&_lock);
-    currentSubscribers = [_subscribers copyItems];
-    _state = SSignalMulticastStateCompleted;
-    os_unfair_lock_unlock(&_lock);
+    __block NSArray *currentSubscribers = nil;
+    [_lock locked:^{
+        currentSubscribers = [_subscribers copyItems];
+        _state = SSignalMulticastStateCompleted;
+    }];
 
     for (SSubscriber *subscriber in currentSubscribers) {
         [subscriber putCompletion];

@@ -43,7 +43,7 @@ public enum Passthrough<T> {
 }
 
 private final class ReduceQueueState<T, E>: Disposable {
-    var lock = os_unfair_lock()
+    var lock = SMutexLock()
     var executingSignal = false
     var terminated = false
 
@@ -67,18 +67,18 @@ private final class ReduceQueueState<T, E>: Disposable {
 
     func enqueueNext(_ next: T) {
         var startSignal = false
-        var currentValue: T
-        os_unfair_lock_lock(&self.lock)
-        currentValue = self.value
-        if self.executingSignal {
-            self.queuedValues.append(next)
-        } else {
-            self.executingSignal = true
-            startSignal = true
+        var currentValue: T?
+        self.lock.locked {
+            currentValue = self.value
+            if self.executingSignal {
+                self.queuedValues.append(next)
+            } else {
+                self.executingSignal = true
+                startSignal = true
+            }
         }
-        os_unfair_lock_unlock(&self.lock)
 
-        if startSignal {
+        if startSignal, let currentValue = currentValue {
             let disposable = generator(currentValue, next).start(next: { next in
                 self.updateValue(next.0)
                 switch next.1 {
@@ -97,9 +97,9 @@ private final class ReduceQueueState<T, E>: Disposable {
     }
 
     func updateValue(_ value: T) {
-        os_unfair_lock_lock(&self.lock)
-        self.value = value
-        os_unfair_lock_unlock(&self.lock)
+        self.lock.locked {
+            self.value = value
+        }
     }
 
     func headCompleted() {
@@ -110,17 +110,17 @@ private final class ReduceQueueState<T, E>: Disposable {
 
             var terminated = false
             var currentValue: T!
-            os_unfair_lock_lock(&self.lock)
-            self.executingSignal = false
-            if self.queuedValues.count != 0 {
-                nextSignal = self.generator(self.value, self.queuedValues[0])
-                self.queuedValues.remove(at: 0)
-                self.executingSignal = true
-            } else {
-                currentValue = self.value
-                terminated = self.terminated
+            self.lock.locked {
+                self.executingSignal = false
+                if self.queuedValues.count != 0 {
+                    nextSignal = self.generator(self.value, self.queuedValues[0])
+                    self.queuedValues.remove(at: 0)
+                    self.executingSignal = true
+                } else {
+                    currentValue = self.value
+                    terminated = self.terminated
+                }
             }
-            os_unfair_lock_unlock(&self.lock)
 
             if terminated {
                 self.subscriber.putNext(currentValue)
@@ -153,14 +153,14 @@ private final class ReduceQueueState<T, E>: Disposable {
 
     func beginCompletion() {
         var executingSignal = false
-        let currentValue: T
-        os_unfair_lock_lock(&self.lock)
-        executingSignal = self.executingSignal
-        self.terminated = true
-        currentValue = self.value
-        os_unfair_lock_unlock(&self.lock)
+        var currentValue: T?
+        self.lock.locked {
+            executingSignal = self.executingSignal
+            self.terminated = true
+            currentValue = self.value
+        }
 
-        if !executingSignal {
+        if !executingSignal, let currentValue = currentValue {
             self.subscriber.putNext(currentValue)
             self.subscriber.putCompletion()
         }

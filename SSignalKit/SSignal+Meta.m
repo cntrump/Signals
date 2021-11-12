@@ -6,10 +6,10 @@
 #import "SSignal+Mapping.h"
 #import "SSignal+Pipe.h"
 
-#import <os/lock.h>
+#import "SMutexLock.h"
 
 @interface SSignalQueueState : NSObject <SDisposable> {
-    os_unfair_lock _lock;
+    SMutexLock *_lock;
     BOOL _executingSignal;
     BOOL _terminated;
 
@@ -28,7 +28,7 @@
 
 - (instancetype)initWithSubscriber:(SSubscriber *)subscriber queueMode:(BOOL)queueMode throttleMode:(BOOL)throttleMode {
     if (self = [super init]) {
-        _lock = OS_UNFAIR_LOCK_INIT;
+        _lock = [[SMutexLock alloc] init];
         _subscriber = subscriber;
         _currentDisposable = [[SMetaDisposable alloc] init];
         _queuedSignals = queueMode ? [[NSMutableArray alloc] init] : nil;
@@ -43,18 +43,18 @@
 }
 
 - (void)enqueueSignal:(SSignal *)signal {
-    BOOL startSignal = NO;
-    os_unfair_lock_lock(&_lock);
-    if (_queueMode && _executingSignal) {
-        if (_throttleMode) {
-            [_queuedSignals removeAllObjects];
+    __block BOOL startSignal = NO;
+    [_lock locked:^{
+        if (_queueMode && _executingSignal) {
+            if (_throttleMode) {
+                [_queuedSignals removeAllObjects];
+            }
+            [_queuedSignals addObject:signal];
+        } else {
+            _executingSignal = YES;
+            startSignal = YES;
         }
-        [_queuedSignals addObject:signal];
-    } else {
-        _executingSignal = YES;
-        startSignal = YES;
-    }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (startSignal) {
         __weak SSignalQueueState *weakSelf = self;
@@ -77,24 +77,24 @@
 }
 
 - (void)headCompleted {
-    SSignal *nextSignal = nil;
+    __block SSignal *nextSignal = nil;
 
-    BOOL terminated = NO;
-    os_unfair_lock_lock(&_lock);
-    _executingSignal = NO;
+    __block BOOL terminated = NO;
+    [_lock locked:^{
+        _executingSignal = NO;
 
-    if (_queueMode) {
-        if (_queuedSignals.count != 0) {
-            nextSignal = _queuedSignals[0];
-            [_queuedSignals removeObjectAtIndex:0];
-            _executingSignal = YES;
+        if (_queueMode) {
+            if (_queuedSignals.count != 0) {
+                nextSignal = _queuedSignals[0];
+                [_queuedSignals removeObjectAtIndex:0];
+                _executingSignal = YES;
+            } else {
+                terminated = _terminated;
+            }
         } else {
             terminated = _terminated;
         }
-    } else {
-        terminated = _terminated;
-    }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (terminated) {
         [_subscriber putCompletion];
@@ -119,11 +119,11 @@
 }
 
 - (void)beginCompletion {
-    BOOL executingSignal = NO;
-    os_unfair_lock_lock(&_lock);
-    executingSignal = _executingSignal;
-    _terminated = YES;
-    os_unfair_lock_unlock(&_lock);
+    __block BOOL executingSignal = NO;
+    [_lock locked:^{
+        executingSignal = _executingSignal;
+        _terminated = YES;
+    }];
 
     if (!executingSignal)
         [_subscriber putCompletion];

@@ -1,9 +1,9 @@
 #import "SMetaDisposable.h"
 
-#import <os/lock.h>
+#import "SMutexLock.h"
 
 @interface SMetaDisposable () {
-    os_unfair_lock _lock;
+    SMutexLock *_lock;
     BOOL _disposed;
     id<SDisposable> _disposable;
 }
@@ -14,23 +14,23 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        _lock = OS_UNFAIR_LOCK_INIT;
+        _lock = [[SMutexLock alloc] init];
     }
 
     return self;
 }
 
 - (void)setDisposable:(id<SDisposable>)disposable {
-    id<SDisposable> previousDisposable = nil;
-    BOOL dispose = NO;
+    __block id<SDisposable> previousDisposable = nil;
+    __block BOOL dispose = NO;
 
-    os_unfair_lock_lock(&_lock);
-    dispose = _disposed;
-    if (!dispose) {
-        previousDisposable = _disposable;
-        _disposable = disposable;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        dispose = _disposed;
+        if (!dispose) {
+            previousDisposable = _disposable;
+            _disposable = disposable;
+        }
+    }];
 
     if (previousDisposable) {
         [previousDisposable dispose];
@@ -41,14 +41,14 @@
 }
 
 - (void)dispose {
-    id<SDisposable> disposable = nil;
+    __block id<SDisposable> disposable = nil;
 
-    os_unfair_lock_lock(&_lock);
-    if (!_disposed) {
-        disposable = _disposable;
-        _disposed = YES;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        if (!_disposed) {
+            disposable = _disposable;
+            _disposed = YES;
+        }
+    }];
 
     if (disposable) {
         [disposable dispose];

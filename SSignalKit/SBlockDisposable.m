@@ -1,7 +1,7 @@
 #import "SBlockDisposable.h"
 
-#import <os/lock.h>
 #import <objc/runtime.h>
+#import <os/lock.h>
 #import <stdatomic.h>
 
 @interface SBlockDisposable () {

@@ -3,7 +3,7 @@ import Foundation
 private final class MulticastInstance<T> {
     let disposable: Disposable
     var subscribers = Bag<(T) -> Void>()
-    var lock = Lock()
+    var lock = SMutexLock()
 
     init(disposable: Disposable) {
         self.disposable = disposable
@@ -11,7 +11,7 @@ private final class MulticastInstance<T> {
 }
 
 public final class Multicast<T> {
-    private let lock = Lock()
+    private let lock = SMutexLock()
     private var instances: [String: MulticastInstance<T>] = [:]
 
     public init() {
@@ -76,9 +76,9 @@ public final class Multicast<T> {
 
 public final class MulticastPromise<T> {
     public let subscribers = Bag<(T) -> Void>()
-    public let lock = Lock()
     public var value: T?
-
+    let lock = SMutexLock()
+    
     public init() {
 
     }

@@ -2,10 +2,10 @@
 
 #import "SSignal.h"
 
-#import <os/lock.h>
+#import "SMutexLock.h"
 
 @interface SDisposableSet () {
-    os_unfair_lock _lock;
+    SMutexLock *_lock;
     BOOL _disposed;
     id<SDisposable> _singleDisposable;
     NSArray *_multipleDisposables;
@@ -17,7 +17,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        _lock = OS_UNFAIR_LOCK_INIT;
+        _lock = [[SMutexLock alloc] init];
     }
 
     return self;
@@ -28,54 +28,54 @@
         return;
     }
 
-    BOOL dispose = NO;
+    __block BOOL dispose = NO;
 
-    os_unfair_lock_lock(&_lock);
-    dispose = _disposed;
-    if (!dispose) {
-        if (_multipleDisposables) {
-            NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
-            [multipleDisposables addObject:disposable];
-            _multipleDisposables = multipleDisposables;
-        } else if (_singleDisposable) {
-            NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithObjects:_singleDisposable, disposable, nil];
-            _multipleDisposables = multipleDisposables;
-            _singleDisposable = nil;
-        } else {
-            _singleDisposable = disposable;
+    [_lock locked:^{
+        dispose = _disposed;
+        if (!dispose) {
+            if (_multipleDisposables) {
+                NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
+                [multipleDisposables addObject:disposable];
+                _multipleDisposables = multipleDisposables;
+            } else if (_singleDisposable) {
+                NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithObjects:_singleDisposable, disposable, nil];
+                _multipleDisposables = multipleDisposables;
+                _singleDisposable = nil;
+            } else {
+                _singleDisposable = disposable;
+            }
         }
-    }
-    os_unfair_lock_unlock(&_lock);
+    }];
 
     if (dispose)
         [disposable dispose];
 }
 
 - (void)remove:(id<SDisposable>)disposable {
-    os_unfair_lock_lock(&_lock);
-    if (_multipleDisposables) {
-        NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
-        [multipleDisposables removeObject:disposable];
-        _multipleDisposables = multipleDisposables;
-    } else if (_singleDisposable == disposable) {
-        _singleDisposable = nil;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        if (_multipleDisposables) {
+            NSMutableArray *multipleDisposables = [[NSMutableArray alloc] initWithArray:_multipleDisposables];
+            [multipleDisposables removeObject:disposable];
+            _multipleDisposables = multipleDisposables;
+        } else if (_singleDisposable == disposable) {
+            _singleDisposable = nil;
+        }
+    }];
 }
 
 - (void)dispose {
-    id<SDisposable> singleDisposable = nil;
-    NSArray *multipleDisposables = nil;
+    __block id<SDisposable> singleDisposable = nil;
+    __block NSArray *multipleDisposables = nil;
 
-    os_unfair_lock_lock(&_lock);
-    if (!_disposed) {
-        _disposed = YES;
-        singleDisposable = _singleDisposable;
-        multipleDisposables = _multipleDisposables;
-        _singleDisposable = nil;
-        _multipleDisposables = nil;
-    }
-    os_unfair_lock_unlock(&_lock);
+    [_lock locked:^{
+        if (!_disposed) {
+            _disposed = YES;
+            singleDisposable = _singleDisposable;
+            multipleDisposables = _multipleDisposables;
+            _singleDisposable = nil;
+            _multipleDisposables = nil;
+        }
+    }];
 
     if (singleDisposable) {
         [singleDisposable dispose];

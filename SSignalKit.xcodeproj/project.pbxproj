@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		BA8A67EC27368775005B94C7 /* SQueueLocalObject.h in Headers */ = {isa = PBXBuildFile; fileRef = BA8A67EA27368774005B94C7 /* SQueueLocalObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BA8A67ED27368775005B94C7 /* SQueueLocalObject.m in Sources */ = {isa = PBXBuildFile; fileRef = BA8A67EB27368774005B94C7 /* SQueueLocalObject.m */; };
+		BAAD1AF3273E42C3005033A5 /* SMutexLock.h in Headers */ = {isa = PBXBuildFile; fileRef = BAAD1AF1273E42C3005033A5 /* SMutexLock.h */; };
+		BAAD1AF4273E42C3005033A5 /* SMutexLock.m in Sources */ = {isa = PBXBuildFile; fileRef = BAAD1AF2273E42C3005033A5 /* SMutexLock.m */; };
 		D0085AE71B28285400EAF753 /* SSignal+Timing.m in Sources */ = {isa = PBXBuildFile; fileRef = D0085AB11B28285400EAF753 /* SSignal+Timing.m */; };
 		D0085AE81B28285400EAF753 /* SThreadPool.m in Sources */ = {isa = PBXBuildFile; fileRef = D0085AB21B28285400EAF753 /* SThreadPool.m */; };
 		D0085AE91B28285400EAF753 /* SQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = D0085AB31B28285400EAF753 /* SQueue.m */; };
@@ -91,7 +93,7 @@
 		D0467D1820D7F7BC0055C28F /* Signal_Loop.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0467D1720D7F7BC0055C28F /* Signal_Loop.swift */; };
 		D053B4001F16881000E2D58A /* QueueLocalObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D053B3FF1F16881000E2D58A /* QueueLocalObject.swift */; };
 		D05F09A81C9EF77100BB6F96 /* Multicast.swift in Sources */ = {isa = PBXBuildFile; fileRef = D05F09A71C9EF77100BB6F96 /* Multicast.swift */; };
-		D066BD0A1C7FE06700D7A576 /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D066BD091C7FE06700D7A576 /* Lock.swift */; };
+		D066BD0A1C7FE06700D7A576 /* SMutexLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = D066BD091C7FE06700D7A576 /* SMutexLock.swift */; };
 		D06F106C1A85561E00485185 /* SSignalBasicTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D06F106B1A85561E00485185 /* SSignalBasicTests.m */; };
 		D06F10711A855E2D00485185 /* DeallocatingObject.m in Sources */ = {isa = PBXBuildFile; fileRef = D06F10701A855E2D00485185 /* DeallocatingObject.m */; };
 		D06F10731A85882000485185 /* SSignalPerformanceTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D06F10721A85882000485185 /* SSignalPerformanceTests.m */; };
@@ -122,6 +124,8 @@
 /* Begin PBXFileReference section */
 		BA8A67EA27368774005B94C7 /* SQueueLocalObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SQueueLocalObject.h; sourceTree = "<group>"; };
 		BA8A67EB27368774005B94C7 /* SQueueLocalObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQueueLocalObject.m; sourceTree = "<group>"; };
+		BAAD1AF1273E42C3005033A5 /* SMutexLock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SMutexLock.h; sourceTree = "<group>"; };
+		BAAD1AF2273E42C3005033A5 /* SMutexLock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SMutexLock.m; sourceTree = "<group>"; };
 		D0085AB11B28285400EAF753 /* SSignal+Timing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SSignal+Timing.m"; sourceTree = "<group>"; };
 		D0085AB21B28285400EAF753 /* SThreadPool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SThreadPool.m; sourceTree = "<group>"; };
 		D0085AB31B28285400EAF753 /* SQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SQueue.m; sourceTree = "<group>"; };
@@ -211,7 +215,7 @@
 		D0467D1720D7F7BC0055C28F /* Signal_Loop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Signal_Loop.swift; sourceTree = "<group>"; };
 		D053B3FF1F16881000E2D58A /* QueueLocalObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueLocalObject.swift; sourceTree = "<group>"; };
 		D05F09A71C9EF77100BB6F96 /* Multicast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Multicast.swift; sourceTree = "<group>"; };
-		D066BD091C7FE06700D7A576 /* Lock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
+		D066BD091C7FE06700D7A576 /* SMutexLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SMutexLock.swift; sourceTree = "<group>"; };
 		D06F106B1A85561E00485185 /* SSignalBasicTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SSignalBasicTests.m; sourceTree = "<group>"; };
 		D06F106F1A855E2D00485185 /* DeallocatingObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeallocatingObject.h; sourceTree = "<group>"; };
 		D06F10701A855E2D00485185 /* DeallocatingObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeallocatingObject.m; sourceTree = "<group>"; };
@@ -285,7 +289,7 @@
 				D0085B4E1B282BEE00EAF753 /* Subscriber.swift */,
 				D07A5CFC1BBDE6E400451791 /* Promise.swift */,
 				D05F09A71C9EF77100BB6F96 /* Multicast.swift */,
-				D066BD091C7FE06700D7A576 /* Lock.swift */,
+				D066BD091C7FE06700D7A576 /* SMutexLock.swift */,
 				D053B3FF1F16881000E2D58A /* QueueLocalObject.swift */,
 				D0085B261B282B9800EAF753 /* SwiftSignalKit.h */,
 				D0085B241B282B9800EAF753 /* Supporting Files */,
@@ -401,6 +405,8 @@
 				D0085ABB1B28285400EAF753 /* SMulticastSignalManager.m */,
 				D09FD73C1BA9BAB900FF0A4F /* SVariable.h */,
 				D09FD73D1BA9BAB900FF0A4F /* SVariable.m */,
+				BAAD1AF1273E42C3005033A5 /* SMutexLock.h */,
+				BAAD1AF2273E42C3005033A5 /* SMutexLock.m */,
 				D0085AB91B28285400EAF753 /* SSignalKit.h */,
 				D0445DDB1A7C2CA500267924 /* Supporting Files */,
 			);
@@ -478,6 +484,7 @@
 				D0085B1A1B28285400EAF753 /* SSignal+Multicast.h in Headers */,
 				D0085B191B28285400EAF753 /* SSignal+Dispatch.h in Headers */,
 				D0085AEF1B28285400EAF753 /* SSignalKit.h in Headers */,
+				BAAD1AF3273E42C3005033A5 /* SMutexLock.h in Headers */,
 				D0085B131B28285400EAF753 /* SBlockDisposable.h in Headers */,
 				D0085B0F1B28285400EAF753 /* SAtomic.h in Headers */,
 			);
@@ -654,7 +661,7 @@
 				D07A5CFD1BBDE6E400451791 /* Promise.swift in Sources */,
 				D0085B5E1B282BEE00EAF753 /* Signal_Reduce.swift in Sources */,
 				D0085B621B282BEE00EAF753 /* Subscriber.swift in Sources */,
-				D066BD0A1C7FE06700D7A576 /* Lock.swift in Sources */,
+				D066BD0A1C7FE06700D7A576 /* SMutexLock.swift in Sources */,
 				D0085B581B282BEE00EAF753 /* Signal_Take.swift in Sources */,
 				D05F09A81C9EF77100BB6F96 /* Multicast.swift in Sources */,
 				D0085B501B282BEE00EAF753 /* Signal_Timing.swift in Sources */,
@@ -700,6 +707,7 @@
 				D0085B121B28285400EAF753 /* SBag.m in Sources */,
 				D0085AEE1B28285400EAF753 /* SSignal.m in Sources */,
 				BA8A67ED27368775005B94C7 /* SQueueLocalObject.m in Sources */,
+				BAAD1AF4273E42C3005033A5 /* SMutexLock.m in Sources */,
 				D0085B021B28285400EAF753 /* SThreadPoolQueue.m in Sources */,
 				D0085AFF1B28285400EAF753 /* SSubscriber.m in Sources */,
 				D0085B081B28285400EAF753 /* SSignal+Multicast.m in Sources */,
