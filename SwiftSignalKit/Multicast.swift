@@ -66,7 +66,7 @@ public final class Multicast<T> {
 
                 if remove {
                     self.lock.locked {
-                        _ = self.instances.removeValue(forKey: key)
+                        self.instances.removeValue(forKey: key)
                     }
                 }
             }

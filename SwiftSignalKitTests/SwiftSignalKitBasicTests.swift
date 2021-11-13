@@ -274,7 +274,7 @@ class SwiftSignalKitTests: XCTestCase {
             return EmptyDisposable
         } |> switchToLatest
 
-        _ = signal.start()
+        signal.start()
 
         usleep(1000000 * 20)
 

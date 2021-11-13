@@ -186,7 +186,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         }
 
         var result = 0
-        _ = catchSignal.start(next: { next in
+        catchSignal.start(next: { next in
             result += next
         })
 
@@ -246,7 +246,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
             }
         })
 
-        _ = signal.start(next: { next in
+        signal.start(next: { next in
             result += next
         })
 
@@ -272,7 +272,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         let signal = combineLatest(s1, s2)
 
         var completed = false
-        _ = signal.start(next: { next in
+        signal.start(next: { next in
             XCTAssert(next.0 == 1 && next.1 == 2, "next != (1, 2)")
             return
         }, completed: {
@@ -301,7 +301,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         let signal = combineLatest(s1, s2, s3)
 
         var completed = false
-        _ = signal.start(next: { next in
+        signal.start(next: { next in
             XCTAssert(next.0 == 1 && next.1 == 2 && next.2 == 3, "next != (1, 2, 3)")
             return
         }, completed: {
@@ -316,19 +316,19 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         let s3 = complete(Int.self, Void.self)
 
         var singleEmitted = false
-        _ = s1.start(next: { next in
+        s1.start(next: { next in
             singleEmitted = next == 1
         })
         XCTAssert(singleEmitted == true, "singleEmitted != true")
 
         var errorEmitted = false
-        _ = s2.start(error: { _ in
+        s2.start(error: { _ in
             errorEmitted = true
         })
         XCTAssert(errorEmitted == true, "errorEmitted != true")
 
         var completedEmitted = false
-        _ = s3.start(completed: {
+        s3.start(completed: {
             completedEmitted = true
         })
         XCTAssert(completedEmitted == true, "errorEmitted != true")
@@ -379,7 +379,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
 
             let signal = singleSignalInt(one) |> then(singleSignalInt(two)) |> then(singleSignalInt(three)) |> switchToLatest
 
-            _ = signal.start(next: { next in
+            signal.start(next: { next in
                 result.append(next)
             }, completed: {
                 completedAll = true
@@ -406,7 +406,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
 
         let signal = singleSignalInt(one) |> switchToLatest
 
-        _ = signal.start(error: { _ in
+        signal.start(error: { _ in
             errorGenerated = true
         })
 
@@ -454,7 +454,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
 
         let signal = singleSignalInt(one) |> then(singleSignalInt(two)) |> then(singleSignalInt(three)) |> queue
 
-        _ = signal.start(next: { next in
+        signal.start(next: { next in
             print("next: \(next)")
             result.append(next)
         }, completed: {
@@ -513,7 +513,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
 
         let signal = singleSignalInt(one) |> then(singleSignalInt(two)) |> then(singleSignalInt(three)) |> queue
 
-        _ = signal.start(next: { next in
+        signal.start(next: { next in
             result.append(next)
         }, completed: {
             completedAll = true
@@ -617,7 +617,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
 
         var result = 0
 
-        _ = (signal |> restart |> take(3)).start(next: { next in
+        (signal |> restart |> take(3)).start(next: { next in
             result += next
         })
 
@@ -675,7 +675,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
                 return complete(Void.self, NoError.self) |> deliverOn(q)
             }
 
-        _ = queued.start()
+        queued.start()
     }
 
     func testReduceSignal() {
@@ -699,7 +699,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
             })
 
         var values: [Int] = []
-        _ = reduced.start(next: { next in
+        reduced.start(next: { next in
             values.append(next)
         })
 

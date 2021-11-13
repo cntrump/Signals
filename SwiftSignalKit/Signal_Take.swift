@@ -7,7 +7,7 @@ public func take<T, E>(_ count: Int) -> (Signal<T, E>) -> Signal<T, E> {
             return signal.start(next: { next in
                 var passthrough = false
                 var complete = false
-                _ = counter.modify { value in
+                counter.modify { value in
                     let updatedCount = value + 1
                     passthrough = updatedCount <= count
                     complete = updatedCount == count
@@ -62,7 +62,7 @@ public func last<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
     return Signal { subscriber in
         let value = Atomic<T?>(value: nil)
         return signal.start(next: { next in
-            _ = value.swap(next)
+            value.swap(next)
         }, error: { error in
             subscriber.putError(error)
         }, completed: {

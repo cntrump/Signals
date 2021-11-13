@@ -9,6 +9,7 @@ public final class Atomic<T> {
         self.value = value
     }
 
+    @discardableResult 
     public func with<R>(_ f: (T) -> R) -> R {
         var result: R?
         lock.locked {
@@ -18,6 +19,7 @@ public final class Atomic<T> {
         return result!
     }
 
+    @discardableResult
     public func modify(_ f: (T) -> T) -> T {
         var result: T?
         lock.locked {
@@ -28,6 +30,7 @@ public final class Atomic<T> {
         return result!
     }
 
+    @discardableResult
     public func swap(_ value: T) -> T {
         var previous: T?
         lock.locked {

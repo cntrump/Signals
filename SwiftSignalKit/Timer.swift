@@ -28,7 +28,7 @@ public final class Timer {
                 }
             }
         })
-        _ = self.timer.modify { _ in
+        self.timer.modify { _ in
             return timer
         }
 
@@ -44,7 +44,7 @@ public final class Timer {
     }
 
     public func invalidate() {
-        _ = self.timer.modify { timer in
+        self.timer.modify { timer in
             timer?.cancel()
             return nil
         }

@@ -16,7 +16,7 @@ public func feedbackLoop<R1, R, E>(once: @escaping (SignalFeedbackLoopState<R1>)
         let loopOnce: (MetaDisposable?) -> Void = { disposable in
             if let signal = once(.initial) {
                 disposable?.set(signal.start(next: { next in
-                    _ = state.modify { value in
+                    state.modify { value in
                         if let value = value {
                             return reduce(value, next)
                         } else {

@@ -42,7 +42,7 @@ private func combineLatestAny<E, R>(_ signals: [Signal<Any, E>], combine: @escap
                 }
             }, error: { error in
                 var emitError = false
-                _ = state.modify { current in
+                state.modify { current in
                     if !current.error {
                         emitError = true
                         return SignalCombineState(values: current.values, completed: current.completed, error: true)
@@ -55,7 +55,7 @@ private func combineLatestAny<E, R>(_ signals: [Signal<Any, E>], combine: @escap
                 }
             }, completed: {
                 var emitCompleted = false
-                _ = state.modify { current in
+                state.modify { current in
                     if !current.completed.contains(index) {
                         var completed = current.completed
                         completed.insert(index)

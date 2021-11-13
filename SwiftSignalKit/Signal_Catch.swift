@@ -57,7 +57,7 @@ public func restart<T, E>(_ signal: Signal<T, E>) -> Signal<T, E> {
 
         return ActionDisposable {
             currentDisposable.dispose()
-            _ = shouldRestart.swap(false)
+            shouldRestart.swap(false)
         }
     }
 }
@@ -88,7 +88,7 @@ public func recurse<T, E>(_ latestValue: T?) -> (Signal<T, E>) -> Signal<T, E> {
 
             return ActionDisposable {
                 currentDisposable.dispose()
-                _ = shouldRestart.swap(false)
+                shouldRestart.swap(false)
             }
         }
     }
@@ -118,7 +118,7 @@ public func retry<T, E>(_ delayIncrement: Double, maxDelay: Double, onQueue queu
                             recurse()
                         })
                     }, completed: {
-                        _ = shouldRetry.swap(false)
+                        shouldRetry.swap(false)
                         subscriber.putCompletion()
                     })
                     currentDisposable.set(disposable)
@@ -129,7 +129,7 @@ public func retry<T, E>(_ delayIncrement: Double, maxDelay: Double, onQueue queu
 
             return ActionDisposable {
                 currentDisposable.dispose()
-                _ = shouldRetry.swap(false)
+                shouldRetry.swap(false)
             }
         }
     }
@@ -167,7 +167,7 @@ public func retry<T, E>(retryOnError: @escaping (E) -> Bool, delayIncrement: Dou
                             }
                         }
                     }, completed: {
-                        _ = shouldRetry.swap(false)
+                        shouldRetry.swap(false)
                         subscriber.putCompletion()
                     })
                     currentDisposable.set(disposable)
@@ -178,7 +178,7 @@ public func retry<T, E>(retryOnError: @escaping (E) -> Bool, delayIncrement: Dou
 
             return ActionDisposable {
                 currentDisposable.dispose()
-                _ = shouldRetry.swap(false)
+                shouldRetry.swap(false)
             }
         }
     }
@@ -199,7 +199,7 @@ public func restartIfError<T, E>(_ signal: Signal<T, E>) -> Signal<T, NoError> {
                 }, error: { _ in
                     recurse()
                 }, completed: {
-                    _ = shouldRetry.swap(false)
+                    shouldRetry.swap(false)
                     subscriber.putCompletion()
                 })
                 currentDisposable.set(disposable)
@@ -210,7 +210,7 @@ public func restartIfError<T, E>(_ signal: Signal<T, E>) -> Signal<T, NoError> {
 
         return ActionDisposable {
             currentDisposable.dispose()
-            _ = shouldRetry.swap(false)
+            shouldRetry.swap(false)
         }
     }
 }

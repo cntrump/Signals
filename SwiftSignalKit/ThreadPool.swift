@@ -19,7 +19,7 @@ public final class ThreadPoolTask {
     }
 
     public func cancel() {
-        _ = self.state.cancelled.swap(true)
+        self.state.cancelled.swap(true)
     }
 }
 

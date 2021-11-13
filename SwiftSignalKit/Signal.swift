@@ -19,7 +19,7 @@ precedencegroup PipeRight {
 
 infix operator |> : PipeRight
 
-public func |> <T, U>(value: T, function: ((T) -> U)) -> U {
+@discardableResult public func |> <T, U>(value: T, function: ((T) -> U)) -> U {
     return function(value)
 }
 
@@ -45,6 +45,7 @@ public final class Signal<T, E> {
         self.generator = generator
     }
 
+    @discardableResult
     public func start(next: ((T) -> Void)! = nil, error: ((E) -> Void)! = nil, completed: (() -> Void)! = nil) -> Disposable {
         let subscriber = Subscriber<T, E>(next: next, error: error, completed: completed)
         let disposable = self.generator(subscriber)
