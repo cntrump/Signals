@@ -1,12 +1,7 @@
 import Foundation
 
-private let QueueSpecificKey = DispatchSpecificKey<NSObject>()
-
-private let globalMainQueue = Queue(queue: DispatchQueue.main, specialIsMainQueue: true)
-private let globalDefaultQueue = Queue(queue: DispatchQueue.global(qos: .default), specialIsMainQueue: false)
-private let globalBackgroundQueue = Queue(queue: DispatchQueue.global(qos: .background), specialIsMainQueue: false)
-
 public final class Queue {
+    private let QueueSpecificKey = DispatchSpecificKey<NSObject>()
     private let nativeQueue: DispatchQueue
     private var specific = NSObject()
     private let specialIsMainQueue: Bool
@@ -15,18 +10,6 @@ public final class Queue {
         get {
             return self.nativeQueue
         }
-    }
-
-    public class func mainQueue() -> Queue {
-        return globalMainQueue
-    }
-
-    public class func concurrentDefaultQueue() -> Queue {
-        return globalDefaultQueue
-    }
-
-    public class func concurrentBackgroundQueue() -> Queue {
-        return globalBackgroundQueue
     }
 
     public init(queue: DispatchQueue) {
@@ -85,4 +68,12 @@ public final class Queue {
         let time: DispatchTime = DispatchTime.now() + delay
         self.nativeQueue.asyncAfter(deadline: time, execute: f)
     }
+}
+
+extension Queue {
+    public static let main = Queue(queue: DispatchQueue.main, specialIsMainQueue: true)
+
+    public static let concurrentDefault = Queue(queue: DispatchQueue.global(qos: .default), specialIsMainQueue: false)
+
+    public static let concurrentBackground = Queue(queue: DispatchQueue.global(qos: .background), specialIsMainQueue: false)
 }

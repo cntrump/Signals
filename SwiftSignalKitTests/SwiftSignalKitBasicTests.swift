@@ -261,7 +261,7 @@ class SwiftSignalKitTests: XCTestCase {
     func testDelayed1() {
         var flag = false
         let signal = Signal<Signal<Void, NoError>, NoError> { subscriber in
-            Queue.concurrentDefaultQueue().after(0.1, {
+            Queue.concurrentDefault.after(0.1, {
                 subscriber.putNext(Signal { subscriber2 in
                     subscriber2.putCompletion()
                     return ActionDisposable {

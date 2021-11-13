@@ -4,10 +4,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SQueue : NSObject
 
-+ (SQueue *)mainQueue;
-+ (SQueue *)concurrentDefaultQueue;
-+ (SQueue *)concurrentBackgroundQueue;
-
 + (SQueue *)wrapConcurrentNativeQueue:(dispatch_queue_t)nativeQueue;
 
 - (void)dispatch:(dispatch_block_t)block;
@@ -17,6 +13,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (dispatch_queue_t)_dispatch_queue;
 
 - (BOOL)isCurrentQueue;
+
+@end
+
+@interface SQueue (Global)
+
+@property(nonatomic, class, readonly) SQueue *main;
+@property(nonatomic, class, readonly) SQueue *concurrentDefault;
+@property(nonatomic, class, readonly) SQueue *concurrentBackground;
 
 @end
 

@@ -21,7 +21,7 @@ public func deliverOn<T, E>(_ queue: Queue) -> (Signal<T, E>) -> Signal<T, E> {
 }
 
 public func deliverOnMainQueue<T, E>(_ signal: Signal<T, E>) -> Signal<T, E> {
-    return signal |> deliverOn(Queue.mainQueue())
+    return signal |> deliverOn(.main)
 }
 
 public func deliverOn<T, E>(_ threadPool: ThreadPool) -> (Signal<T, E>) -> Signal<T, E> {

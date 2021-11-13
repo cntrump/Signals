@@ -18,7 +18,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        _disposable = [[[SSignal single:nil] delay:1.0 onQueue:[SQueue concurrentDefaultQueue]] startWithNext:^(__unused id next) {
+        _disposable = [[[SSignal single:nil] delay:1.0 onQueue:SQueue.concurrentDefault] startWithNext:^(__unused id next) {
             [self description];
         }];
     }
@@ -565,7 +565,7 @@
 
 - (void)testRestart {
     SSignal *signal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
-        [[SQueue concurrentDefaultQueue] dispatch:^{
+        [SQueue.concurrentDefault dispatch:^{
             [subscriber putNext:@1];
             [subscriber putCompletion];
         }];

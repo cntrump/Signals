@@ -12,37 +12,6 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
 
 @implementation SQueue
 
-+ (SQueue *)mainQueue {
-    static SQueue *queue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_main_queue() queueSpecific:NULL];
-        queue->_specialIsMainQueue = YES;
-    });
-
-    return queue;
-}
-
-+ (SQueue *)concurrentDefaultQueue {
-    static SQueue *queue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) queueSpecific:NULL];
-    });
-
-    return queue;
-}
-
-+ (SQueue *)concurrentBackgroundQueue {
-    static SQueue *queue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) queueSpecific:NULL];
-    });
-
-    return queue;
-}
-
 + (SQueue *)wrapConcurrentNativeQueue:(dispatch_queue_t)nativeQueue {
     return [[SQueue alloc] initWithNativeQueue:nativeQueue queueSpecific:NULL];
 }
@@ -106,6 +75,41 @@ static const void *SQueueSpecificKey = &SQueueSpecificKey;
         return YES;
     }
     return NO;
+}
+
+@end
+
+@implementation SQueue (Global)
+
++ (SQueue *)main {
+    static SQueue *queue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_main_queue() queueSpecific:NULL];
+        queue->_specialIsMainQueue = YES;
+    });
+
+    return queue;
+}
+
++ (SQueue *)concurrentDefault {
+    static SQueue *queue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) queueSpecific:NULL];
+    });
+
+    return queue;
+}
+
++ (SQueue *)concurrentBackground {
+    static SQueue *queue = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        queue = [[SQueue alloc] initWithNativeQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) queueSpecific:NULL];
+    });
+
+    return queue;
 }
 
 @end

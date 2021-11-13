@@ -721,7 +721,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
     }
 
     func testMainQueueReentrant() {
-        let q = Queue.mainQueue()
+        let q = Queue.main
 
         var a = 1
         q.async {
