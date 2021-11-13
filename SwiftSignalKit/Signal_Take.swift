@@ -66,7 +66,7 @@ public func last<T, E>(signal: Signal<T, E>) -> Signal<T?, E> {
         }, error: { error in
             subscriber.putError(error)
         }, completed: {
-            subscriber.putNext(value.with({ $0 }))
+            subscriber.putNext(value.with { $0 })
             subscriber.putCompletion()
         })
     }

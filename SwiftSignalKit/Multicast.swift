@@ -33,9 +33,9 @@ public final class Multicast<T> {
 
             var index: Bag<(T) -> Void>.Index!
             instance.lock.locked {
-                index = instance.subscribers.add({ next in
+                index = instance.subscribers.add { next in
                     subscriber.putNext(next)
-                })
+                }
             }
 
             if let beginDisposable = beginDisposable {

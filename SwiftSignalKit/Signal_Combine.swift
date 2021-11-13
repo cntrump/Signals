@@ -177,7 +177,7 @@ public func combineLatest<T, E>(queue: Queue? = nil, _ signals: [Signal<T, E>]) 
         return single([T](), E.self)
     }
 
-    return combineLatestAny(signals.map({signalOfAny($0)}), combine: { values in
+    return combineLatestAny(signals.map {signalOfAny($0)}, combine: { values in
         var combined: [T] = []
         for value in values {
             combined.append(value as! T)
