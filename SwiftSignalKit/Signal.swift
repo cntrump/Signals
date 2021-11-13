@@ -23,6 +23,13 @@ infix operator |> : PipeRight
     return function(value)
 }
 
+#if compiler(>=5.5.1)
+@available(iOS 15.0, tvOS 15.0, macOS 12.0, *)
+@discardableResult public func |> <T, U>(value: T, function: ((T) async -> U)) async -> U {
+    return await function(value)
+}
+#endif
+
 private final class SubscriberDisposable<T, E>: Disposable {
     private let subscriber: Subscriber<T, E>
     private let disposable: Disposable
