@@ -23,10 +23,19 @@ infix operator |> : PipeRight
     return function(value)
 }
 
+@discardableResult public func |> <T, U>(value: T, function: ((T) throws -> U)) throws -> U {
+    return try function(value)
+}
+
 #if compiler(>=5.5.1)
 @available(iOS 15.0, tvOS 15.0, macOS 12.0, *)
 @discardableResult public func |> <T, U>(value: T, function: ((T) async -> U)) async -> U {
     return await function(value)
+}
+
+@available(iOS 15.0, tvOS 15.0, macOS 12.0, *)
+@discardableResult public func |> <T, U>(value: T, function: ((T) async throws -> U)) async throws -> U {
+    return try await function(value)
 }
 #endif
 
