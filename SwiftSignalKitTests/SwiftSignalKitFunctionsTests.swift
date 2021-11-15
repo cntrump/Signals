@@ -662,7 +662,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
     func testQueueRecursive() {
         let q = Queue()
 
-        let signal = Signal<Int, NoError> { subscriber in
+        let signal = Signal<Int, Never> { subscriber in
             for _ in 0 ..< 1000 {
                 subscriber.putNext(1)
             }
@@ -671,8 +671,8 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         }
 
         let queued = signal
-            |> mapToQueue { _ -> Signal<Void, NoError> in
-                return complete(Void.self, NoError.self) |> deliverOn(q)
+            |> mapToQueue { _ -> Signal<Void, Never> in
+                return complete(Void.self, Never.self) |> deliverOn(q)
             }
 
         queued.start()
@@ -681,7 +681,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
     func testReduceSignal() {
         let q = Queue()
 
-        let signal = Signal<Int, NoError> { subscriber in
+        let signal = Signal<Int, Never> { subscriber in
             for i in 0 ..< 1000 {
                 subscriber.putNext(i)
             }
@@ -690,7 +690,7 @@ class SwiftSignalKitFunctionsTests: XCTestCase {
         }
 
         let reduced = signal
-            |> reduceLeft(0, generator: { current, next -> Signal<(Int, Passthrough<Int>), NoError> in
+            |> reduceLeft(0, generator: { current, next -> Signal<(Int, Passthrough<Int>), Never> in
                 return Signal { subscriber in
                     subscriber.putNext((current + next, Passthrough.Some(current + next)))
                     subscriber.putCompletion()

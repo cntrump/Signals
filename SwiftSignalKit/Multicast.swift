@@ -17,7 +17,7 @@ public final class Multicast<T> {
     public init() {
     }
 
-    public func get(key: String, signal: Signal<T, NoError>) -> Signal<T, NoError> {
+    public func get(key: String, signal: Signal<T, Never>) -> Signal<T, Never> {
         return Signal { subscriber in
             var instance: MulticastInstance<T>!
             var beginDisposable: MetaDisposable?

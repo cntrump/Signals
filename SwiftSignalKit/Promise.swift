@@ -1,7 +1,7 @@
 import Foundation
 
 public final class Promise<T> {
-    private var initializeOnFirstAccess: Signal<T, NoError>?
+    private var initializeOnFirstAccess: Signal<T, Never>?
     private var value: T?
     private var lock = SMutexLock()
     private let disposable = MetaDisposable()
@@ -9,7 +9,7 @@ public final class Promise<T> {
 
     public var onDeinit: (() -> Void)?
 
-    public init(initializeOnFirstAccess: Signal<T, NoError>?) {
+    public init(initializeOnFirstAccess: Signal<T, Never>?) {
         self.initializeOnFirstAccess = initializeOnFirstAccess
     }
 
@@ -22,7 +22,7 @@ public final class Promise<T> {
         self.disposable.dispose()
     }
 
-    public func set(_ signal: Signal<T, NoError>) {
+    public func set(_ signal: Signal<T, Never>) {
         lock.locked {
             self.value = nil
         }
@@ -42,9 +42,9 @@ public final class Promise<T> {
         }))
     }
 
-    public func get() -> Signal<T, NoError> {
+    public func get() -> Signal<T, Never> {
         return Signal { [self] subscriber in
-            var initializeOnFirstAccessNow: Signal<T, NoError>?
+            var initializeOnFirstAccessNow: Signal<T, Never>?
             var currentValue: T?
             var index: Bag.Index = NSNotFound
             lock.locked {
@@ -106,7 +106,7 @@ public final class ValuePromise<T: Equatable> {
         }
     }
 
-    public func get() -> Signal<T, NoError> {
+    public func get() -> Signal<T, Never> {
         return Signal { [self] subscriber in
             var currentValue: T?
             var index: Bag.Index = NSNotFound

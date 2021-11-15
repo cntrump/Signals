@@ -6,7 +6,7 @@ public enum SignalEvent<T, E> {
     case Completion
 }
 
-public func dematerialize<T, E>(signal: Signal<T, E>) -> Signal<SignalEvent<T, E>, NoError> {
+public func dematerialize<T, E>(signal: Signal<T, E>) -> Signal<SignalEvent<T, E>, Never> {
     return Signal { subscriber in
         return signal.start(next: { next in
             subscriber.putNext(.Next(next))
@@ -20,7 +20,7 @@ public func dematerialize<T, E>(signal: Signal<T, E>) -> Signal<SignalEvent<T, E
     }
 }
 
-public func materialize<T, E>(signal: Signal<SignalEvent<T, E>, NoError>) -> Signal<T, E> {
+public func materialize<T, E>(signal: Signal<SignalEvent<T, E>, Never>) -> Signal<T, E> {
     return Signal { subscriber in
         return signal.start(next: { next in
             switch next {

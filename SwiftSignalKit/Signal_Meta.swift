@@ -181,7 +181,7 @@ public func ignoreValues<T, E>(_ signal: Signal<T, E>) -> Signal<Never, E> {
     }
 }
 
-public func mapToSignalPromotingError<T, R, E>(_ f: @escaping(T) -> Signal<R, E>) -> (Signal<T, NoError>) -> Signal<R, E> {
+public func mapToSignalPromotingError<T, R, E>(_ f: @escaping(T) -> Signal<R, E>) -> (Signal<T, Never>) -> Signal<R, E> {
     return { signal -> Signal<R, E> in
         return Signal<Signal<R, E>, E> { subscriber in
             return signal.start(next: { next in

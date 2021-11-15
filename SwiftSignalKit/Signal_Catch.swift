@@ -94,7 +94,7 @@ public func recurse<T, E>(_ latestValue: T?) -> (Signal<T, E>) -> Signal<T, E> {
     }
 }
 
-public func retry<T, E>(_ delayIncrement: Double, maxDelay: Double, onQueue queue: Queue) -> (_ signal: Signal<T, E>) -> Signal<T, NoError> {
+public func retry<T, E>(_ delayIncrement: Double, maxDelay: Double, onQueue queue: Queue) -> (_ signal: Signal<T, E>) -> Signal<T, Never> {
     return { signal in
         return Signal { subscriber in
             let shouldRetry = Atomic(value: true)
@@ -184,8 +184,8 @@ public func retry<T, E>(retryOnError: @escaping (E) -> Bool, delayIncrement: Dou
     }
 }
 
-public func restartIfError<T, E>(_ signal: Signal<T, E>) -> Signal<T, NoError> {
-    return Signal<T, NoError> { subscriber in
+public func restartIfError<T, E>(_ signal: Signal<T, E>) -> Signal<T, Never> {
+    return Signal<T, Never> { subscriber in
         let shouldRetry = Atomic(value: true)
         let currentDisposable = MetaDisposable()
 
