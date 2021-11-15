@@ -1,11 +1,5 @@
 import Foundation
 
-let doNothing: () -> Void = { }
-
-public func identity<A>(a: A) -> A {
-    return a
-}
-
 precedencegroup PipeRight {
     associativity: left
     higherThan: DefaultPrecedence
